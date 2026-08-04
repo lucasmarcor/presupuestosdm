@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Maipú - Consulta de Estudios y Presupuestos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body style="background-color: #FFFFFF;" class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header style="background-color: #70006a;" class="text-white shadow-md">
+
+    <div class="max-w-7xl mx-auto px-4 py-5 flex items-center gap-4">
+        <img src="image_0.png" alt="Logo Diagnóstico Maipú" class="h-12 sm:h-14 object-contain">
+        <div class="h-8 w-px bg-white/40"></div>
+        <span class="text-white text-base sm:text-xl font-medium tracking-wide">Cotizador de estudios online</span>
+    </div>
+
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+        
+        <!-- Left 2 Columns: Search & Catalog -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Filters Card -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-lg font-semibold text-slate-900">Buscar Estudios</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Filtrar por nombre o código</label>
+                        <input type="text" id="searchInput" placeholder="Ej. Resonancia, Glucemia, EST-001..." 
+                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Categoría</label>
+                        <select id="categorySelect" 
+                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table / Results Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-900">Listado de Estudios</h3>
+                    <span id="resultsCount" class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">Mostrando estudios</span>
+                </div>
+                <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3">Estudio</th>
+                                <th class="px-6 py-3">Categoría</th>
+                                <th class="px-6 py-3 text-right">Precio</th>
+                                <th class="px-6 py-3 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studiesTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Budget / Cart -->
+        <div class="space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 sticky top-6">
+                <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                    <h2 class="text-lg font-semibold text-slate-900">Presupuesto Seleccionado</h2>
+                    <span id="cartCountBadge" class="bg-blue-100 text-blue-700 font-semibold text-xs px-2.5 py-1 rounded-full">0 ítems</span>
+                </div>
+
+                <!-- Cart Items List -->
+                <div id="cartItemsContainer" class="py-4 space-y-3 max-h-[220px] overflow-y-auto divide-y divide-slate-50">
+                    <p class="text-slate-400 text-sm text-center py-6">No hay estudios seleccionados.<br>Haz clic en "Agregar" en la tabla.</p>
+                </div>
+
+                <!-- Coupon Section -->
+                <div class="py-3 border-t border-slate-100 space-y-2">
+                    <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider">Código de Descuento</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="couponInput" placeholder="Ej. MIMAIPU" 
+                            class="flex-grow px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                        <button onclick="applyCoupon()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg text-sm transition">
+                            Aplicar
+                        </button>
+                    </div>
+                    <div id="couponMessage" class="text-xs font-medium hidden"></div>
+                </div>
+
+                <!-- Total & Actions -->
+                <div class="pt-4 border-t border-slate-100 space-y-4">
+                    <div id="subtotalContainer" class="hidden justify-between items-center text-sm text-slate-500">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">$0</span>
+                    </div>
+                    <div id="discountContainer" class="hidden justify-between items-center text-sm text-emerald-600 font-medium">
+                        <span id="discountLabel">Descuento:</span>
+                        <span id="cartDiscount">-$0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-lg font-bold text-slate-900">
+                        <span>Total Presupuesto:</span>
+                        <span id="cartTotal" class="text-blue-600">$0</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="clearCart()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-sm transition">
+                            Vaciar Presupuesto
+                        </button>
+                        <button onclick="shareWhatsApp()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-sm">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            Enviar Presupuesto por WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6 text-center text-xs text-slate-500">
+        Diagnóstico Maipú &copy; 2026 — Todos los derechos reservados
+    </footer>
+
+    <script>
+        const studiesData = [{"Código": "EST-001", "Estudio Médico": "Fondos de Ojo", "Categoría": "Oftalmología", "Precio (ARS)": 14400, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-002", "Estudio Médico": "Paquimetría Corneal", "Categoría": "Oftalmología", "Precio (ARS)": 24200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-003", "Estudio Médico": "Mamografía Bilateral", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 46300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 3}, {"Código": "EST-004", "Estudio Médico": "Proteinograma por Electroforesis", "Categoría": "Laboratorio", "Precio (ARS)": 20200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-005", "Estudio Médico": "Potenciales Evocados Auditivos", "Categoría": "Neurología", "Precio (ARS)": 59200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-006", "Estudio Médico": "Glucemia en Ayunas", "Categoría": "Laboratorio", "Precio (ARS)": 7700, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-007", "Estudio Médico": "Tomografía Dental (Dent سكان / 3D)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 81800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-008", "Estudio Médico": "Proteinograma por Electroforesis (de Control)", "Categoría": "Laboratorio", "Precio (ARS)": 24600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-009", "Estudio Médico": "Retinografía No Midriática", "Categoría": "Oftalmología", "Precio (ARS)": 30000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-010", "Estudio Médico": "Videocolonoscopia", "Categoría": "Gastroenterología", "Precio (ARS)": 119600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 6}, {"Código": "EST-011", "Estudio Médico": "Electromiografía (EMG) de Miembros", "Categoría": "Neurología", "Precio (ARS)": 89700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-012", "Estudio Médico": "Audiometría Tonal y Vocal", "Categoría": "Otorrinolaringología", "Precio (ARS)": 25100, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-013", "Estudio Médico": "Logoaudiometría", "Categoría": "Otorrinolaringología", "Precio (ARS)": 22400, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-014", "Estudio Médico": "Manometría Esofágica", "Categoría": "Gastroenterología", "Precio (ARS)": 86200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-015", "Estudio Médico": "Ecografía Mamaria Bilateral", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 38800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-016", "Estudio Médico": "Ergometría (Prueba de Esfuerzo)", "Categoría": "Cardiología", "Precio (ARS)": 44200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-017", "Estudio Médico": "Endoscopia Digestiva Alta", "Categoría": "Gastroenterología", "Precio (ARS)": 96000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-018", "Estudio Médico": "Impedanciometría", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20700, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-019", "Estudio Médico": "Electrocardiograma (ECG)", "Categoría": "Cardiología", "Precio (ARS)": 20300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-020", "Estudio Médico": "Cápsula Endoscópica", "Categoría": "Gastroenterología", "Precio (ARS)": 325500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 14}, {"Código": "EST-021", "Estudio Médico": "Endoscopia Digestiva Alta (Complejo)", "Categoría": "Gastroenterología", "Precio (ARS)": 94000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-022", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 52500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-023", "Estudio Médico": "Electroencefalograma con Privación de Sueño", "Categoría": "Neurología", "Precio (ARS)": 61600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-024", "Estudio Médico": "Perfil Lipídico", "Categoría": "Laboratorio", "Precio (ARS)": 16600, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-025", "Estudio Médico": "Radiografía de Rodilla", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 19300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-026", "Estudio Médico": "Logoaudiometría (de Rutina)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 18600, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-027", "Estudio Médico": "Manometría Esofágica (Avanzado)", "Categoría": "Gastroenterología", "Precio (ARS)": 96800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-028", "Estudio Médico": "Impedanciometría (de Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 19200, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-029", "Estudio Médico": "Holter de 24 horas", "Categoría": "Cardiología", "Precio (ARS)": 61000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-030", "Estudio Médico": "Ergometría (Prueba de Esfuerzo) (Complejo)", "Categoría": "Cardiología", "Precio (ARS)": 52800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-031", "Estudio Médico": "Resonancia Magnética de Columna Lumbar", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 152600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-032", "Estudio Médico": "Densitometría Ósea", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 30200, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-033", "Estudio Médico": "Manometría Esofágica (Digital)", "Categoría": "Gastroenterología", "Precio (ARS)": 98600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-034", "Estudio Médico": "Electroencefalograma con Privación de Sueño (Digital)", "Categoría": "Neurología", "Precio (ARS)": 55000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-035", "Estudio Médico": "Audiometría Tonal y Vocal (de Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-036", "Estudio Médico": "Impedanciometría (Avanzado)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 18600, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-037", "Estudio Médico": "Orina Completa", "Categoría": "Laboratorio", "Precio (ARS)": 8100, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-038", "Estudio Médico": "Paquimetría Corneal (de Control)", "Categoría": "Oftalmología", "Precio (ARS)": 27500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-039", "Estudio Médico": "pH-metría Esofágica de 24 horas", "Categoría": "Gastroenterología", "Precio (ARS)": 90200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-040", "Estudio Médico": "Videocolonoscopia (Pediátrico)", "Categoría": "Gastroenterología", "Precio (ARS)": 108100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 6}, {"Código": "EST-041", "Estudio Médico": "Resonancia Magnética de Columna Lumbar (Complejo)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 132300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-042", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT)", "Categoría": "Oftalmología", "Precio (ARS)": 60800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-043", "Estudio Médico": "Potenciales Evocados Auditivos (Pediátrico)", "Categoría": "Neurología", "Precio (ARS)": 63000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-044", "Estudio Médico": "Tomografía Dental (Dent سكان / 3D) (Avanzado)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 69000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-045", "Estudio Médico": "Audiometría Tonal y Vocal (de Rutina)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20500, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-046", "Estudio Médico": "Densitometría Ósea (de Rutina)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 32200, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-047", "Estudio Médico": "Cápsula Endoscópica (Control)", "Categoría": "Gastroenterología", "Precio (ARS)": 357000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 14}, {"Código": "EST-048", "Estudio Médico": "Cápsula Endoscópica (Avanzado)", "Categoría": "Gastroenterología", "Precio (ARS)": 371000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 14}, {"Código": "EST-049", "Estudio Médico": "Eco Stress con Farmacología", "Categoría": "Cardiología", "Precio (ARS)": 88200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-050", "Estudio Médico": "Retinografía No Midriática (Control)", "Categoría": "Oftalmología", "Precio (ARS)": 31100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-051", "Estudio Médico": "Electromiografía (EMG) de Miembros (de Rutina)", "Categoría": "Neurología", "Precio (ARS)": 85800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-052", "Estudio Médico": "Ergometría (Prueba de Esfuerzo) (Pediátrico)", "Categoría": "Cardiología", "Precio (ARS)": 49400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-053", "Estudio Médico": "Eco Doppler Cardíaco (Ecocardiograma)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 55800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-054", "Estudio Médico": "Retinografía No Midriática (Pediátrico)", "Categoría": "Oftalmología", "Precio (ARS)": 29700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-055", "Estudio Médico": "Logoaudiometría (Complejo)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 18600, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-056", "Estudio Médico": "Impedanciometría (de Rutina)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20900, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-057", "Estudio Médico": "Potenciales Evocados Visuales", "Categoría": "Neurología", "Precio (ARS)": 62400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-058", "Estudio Médico": "Resonancia Magnética de Rodilla", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 148200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-059", "Estudio Médico": "Resonancia Magnética de Columna Lumbar (de Rutina)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 143100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-060", "Estudio Médico": "Hemoglobina Glicosilada (HbA1c)", "Categoría": "Laboratorio", "Precio (ARS)": 15500, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-061", "Estudio Médico": "Endoscopia Digestiva Alta (Control)", "Categoría": "Gastroenterología", "Precio (ARS)": 96000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-062", "Estudio Médico": "Impedanciometría (de Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 17300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-063", "Estudio Médico": "Ecografía Vesico-Prostática", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 29400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-064", "Estudio Médico": "Serología para Chagas", "Categoría": "Laboratorio", "Precio (ARS)": 13300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-065", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (de Rutina)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 48900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-066", "Estudio Médico": "Radiografía Panorámica Dental", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 19300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 1}, {"Código": "EST-067", "Estudio Médico": "Radiografía de Columna Cervical", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 24400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-068", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (Avanzado)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 49900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-069", "Estudio Médico": "Doppler Transcraneal", "Categoría": "Neurología", "Precio (ARS)": 78400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-070", "Estudio Médico": "Radiografía de Rodilla (Avanzado)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 23300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-071", "Estudio Médico": "Paquimetría Corneal (Avanzado)", "Categoría": "Oftalmología", "Precio (ARS)": 26500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-072", "Estudio Médico": "Endoscopia Digestiva Alta (de Control)", "Categoría": "Gastroenterología", "Precio (ARS)": 92200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-073", "Estudio Médico": "Vitamina B12 y Ácido Fólico", "Categoría": "Laboratorio", "Precio (ARS)": 23400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-074", "Estudio Médico": "Potenciales Evocados Visuales (de Control)", "Categoría": "Neurología", "Precio (ARS)": 70200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-075", "Estudio Médico": "Radiografía de Tórax AP y Perfil", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 20200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-076", "Estudio Médico": "Retinografía No Midriática (Control)", "Categoría": "Oftalmología", "Precio (ARS)": 27200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-077", "Estudio Médico": "Perfil Lipídico (de Rutina)", "Categoría": "Laboratorio", "Precio (ARS)": 15000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-078", "Estudio Médico": "Clearence de Creatinina", "Categoría": "Laboratorio", "Precio (ARS)": 17500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-079", "Estudio Médico": "Cardioversión Eléctrica Programada", "Categoría": "Cardiología", "Precio (ARS)": 144000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-080", "Estudio Médico": "Electroencefalograma con Privación de Sueño (Digital)", "Categoría": "Neurología", "Precio (ARS)": 59400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-081", "Estudio Médico": "Potenciales Evocados Auditivos (de Control)", "Categoría": "Neurología", "Precio (ARS)": 74800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-082", "Estudio Médico": "Test del Aliento para Sobrecrecimiento Bacteriano", "Categoría": "Gastroenterología", "Precio (ARS)": 42200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-083", "Estudio Médico": "Tomografía Computada de Senos Paranasales", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 79000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-084", "Estudio Médico": "Topografía Corneal", "Categoría": "Oftalmología", "Precio (ARS)": 42400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-085", "Estudio Médico": "pH-metría Esofágica de 24 horas (Avanzado)", "Categoría": "Gastroenterología", "Precio (ARS)": 92700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-086", "Estudio Médico": "Hepatograma", "Categoría": "Laboratorio", "Precio (ARS)": 12700, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-087", "Estudio Médico": "Test del Aliento para Helicobacter Pylori", "Categoría": "Gastroenterología", "Precio (ARS)": 38000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-088", "Estudio Médico": "Audiometría Tonal y Vocal (de Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 21100, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-089", "Estudio Médico": "Resonancia Magnética de Columna Lumbar (Avanzado)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 126900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-090", "Estudio Médico": "Videocolonoscopia (Pediátrico)", "Categoría": "Gastroenterología", "Precio (ARS)": 119600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 6}, {"Código": "EST-091", "Estudio Médico": "Resonancia Magnética de Cerebro", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 130000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-092", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 47300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-093", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT) (de Rutina)", "Categoría": "Oftalmología", "Precio (ARS)": 53100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-094", "Estudio Médico": "Coagulograma", "Categoría": "Laboratorio", "Precio (ARS)": 15200, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-095", "Estudio Médico": "pH-metría Esofágica de 24 horas (Avanzado)", "Categoría": "Gastroenterología", "Precio (ARS)": 78700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-096", "Estudio Médico": "Rinomanometría", "Categoría": "Otorrinolaringología", "Precio (ARS)": 28200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-097", "Estudio Médico": "Ecografía de Partes Blandas", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 25200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-098", "Estudio Médico": "Manometría Esofágica (de Rutina)", "Categoría": "Gastroenterología", "Precio (ARS)": 101200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-099", "Estudio Médico": "Manometría Esofágica (Avanzado)", "Categoría": "Gastroenterología", "Precio (ARS)": 98600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-100", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT) (Digital)", "Categoría": "Oftalmología", "Precio (ARS)": 66100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-101", "Estudio Médico": "Videocolonoscopia (de Control)", "Categoría": "Gastroenterología", "Precio (ARS)": 113800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 6}, {"Código": "EST-102", "Estudio Médico": "Ecografía Abdominal Total", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 37800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-103", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT) (Control)", "Categoría": "Oftalmología", "Precio (ARS)": 66700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-104", "Estudio Médico": "Electrocardiograma (ECG) (Control)", "Categoría": "Cardiología", "Precio (ARS)": 19400, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-105", "Estudio Médico": "Cápsula Endoscópica (de Rutina)", "Categoría": "Gastroenterología", "Precio (ARS)": 371000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 14}, {"Código": "EST-106", "Estudio Médico": "Ecografía Abdominal Total (Complejo)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 32200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-107", "Estudio Médico": "Logoaudiometría (Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 21800, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-108", "Estudio Médico": "Coagulograma (Avanzado)", "Categoría": "Laboratorio", "Precio (ARS)": 14900, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-109", "Estudio Médico": "Electroencefalograma con Privación de Sueño (Complejo)", "Categoría": "Neurología", "Precio (ARS)": 60000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-110", "Estudio Médico": "Hemoglobina Glicosilada (HbA1c) (Control)", "Categoría": "Laboratorio", "Precio (ARS)": 16000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-111", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT) (Complejo)", "Categoría": "Oftalmología", "Precio (ARS)": 62500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-112", "Estudio Médico": "Presurometría (MAPA de 24 hs)", "Categoría": "Cardiología", "Precio (ARS)": 51800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-113", "Estudio Médico": "Retinografía No Midriática (Pediátrico)", "Categoría": "Oftalmología", "Precio (ARS)": 27200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-114", "Estudio Médico": "Estudio Electrofisiológico", "Categoría": "Cardiología", "Precio (ARS)": 197400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 10}, {"Código": "EST-115", "Estudio Médico": "Retinografía No Midriática (Pediátrico)", "Categoría": "Oftalmología", "Precio (ARS)": 29100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-116", "Estudio Médico": "Ergometría (Prueba de Esfuerzo) (Control)", "Categoría": "Cardiología", "Precio (ARS)": 49900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-117", "Estudio Médico": "Potenciales Evocados Visuales (Control)", "Categoría": "Neurología", "Precio (ARS)": 59800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-118", "Estudio Médico": "Electroencefalograma con Privación de Sueño (Complejo)", "Categoría": "Neurología", "Precio (ARS)": 53900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-119", "Estudio Médico": "Resonancia Magnética de Rodilla (Control)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 126100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 7}, {"Código": "EST-120", "Estudio Médico": "Presurometría (MAPA de 24 hs) (de Control)", "Categoría": "Cardiología", "Precio (ARS)": 56200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-121", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (Digital)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 51500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-122", "Estudio Médico": "Doppler Transcraneal (Complejo)", "Categoría": "Neurología", "Precio (ARS)": 63000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-123", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT) (Pediátrico)", "Categoría": "Oftalmología", "Precio (ARS)": 65500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-124", "Estudio Médico": "Urea y Creatinina", "Categoría": "Laboratorio", "Precio (ARS)": 9300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-125", "Estudio Médico": "Hepatograma (Digital)", "Categoría": "Laboratorio", "Precio (ARS)": 15000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-126", "Estudio Médico": "Radiografía de Columna Cervical (Pediátrico)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 25100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-127", "Estudio Médico": "Tomografía Computada de Tórax", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 91200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-128", "Estudio Médico": "Retinografía No Midriática (de Rutina)", "Categoría": "Oftalmología", "Precio (ARS)": 27400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-129", "Estudio Médico": "Potenciales Evocados Auditivos (Pediátrico)", "Categoría": "Neurología", "Precio (ARS)": 59200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-130", "Estudio Médico": "Prolactina", "Categoría": "Laboratorio", "Precio (ARS)": 17200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-131", "Estudio Médico": "Hemograma Completo", "Categoría": "Laboratorio", "Precio (ARS)": 12500, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-132", "Estudio Médico": "Logoaudiometría (Digital)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 19600, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-133", "Estudio Médico": "Eco Doppler Cardíaco (Ecocardiograma) (Complejo)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 69400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-134", "Estudio Médico": "Cápsula Endoscópica (Control)", "Categoría": "Gastroenterología", "Precio (ARS)": 325500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 14}, {"Código": "EST-135", "Estudio Médico": "Urea y Creatinina (Complejo)", "Categoría": "Laboratorio", "Precio (ARS)": 8600, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-136", "Estudio Médico": "Impedanciometría (Complejo)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-137", "Estudio Médico": "Eco Doppler de Vasos de Cuello", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 54500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-138", "Estudio Médico": "Vitamina D (25-OH)", "Categoría": "Laboratorio", "Precio (ARS)": 28300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-139", "Estudio Médico": "Audiometría Tonal y Vocal (Pediátrico)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 21100, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-140", "Estudio Médico": "Campo Visual Computarizado", "Categoría": "Oftalmología", "Precio (ARS)": 37700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-141", "Estudio Médico": "Ferritina y Hierro Sérico", "Categoría": "Laboratorio", "Precio (ARS)": 21700, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-142", "Estudio Médico": "Potenciales Evocados Auditivos (Complejo)", "Categoría": "Neurología", "Precio (ARS)": 73400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-143", "Estudio Médico": "Ecografía Ginecológica Transvaginal", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 34200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-144", "Estudio Médico": "Logoaudiometría (Avanzado)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 18000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-145", "Estudio Médico": "Tomografía Computada de Tórax (de Rutina)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 97800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-146", "Estudio Médico": "Logoaudiometría (Pediátrico)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 19000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-147", "Estudio Médico": "Audiometría Tonal y Vocal (Avanzado)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-148", "Estudio Médico": "Rinomanometría (de Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 29800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-149", "Estudio Médico": "Rinomanometría (Pediátrico)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 30700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-150", "Estudio Médico": "Logoaudiometría (de Control)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 18000, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-151", "Estudio Médico": "Campo Visual Computarizado (Avanzado)", "Categoría": "Oftalmología", "Precio (ARS)": 34000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-152", "Estudio Médico": "Ergometría (Prueba de Esfuerzo) (de Rutina)", "Categoría": "Cardiología", "Precio (ARS)": 47000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-153", "Estudio Médico": "Eco Stress con Farmacología (Avanzado)", "Categoría": "Cardiología", "Precio (ARS)": 108800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-154", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (Pediátrico)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 46800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-155", "Estudio Médico": "Perfil Tiroideo (TSH, T3, T4)", "Categoría": "Laboratorio", "Precio (ARS)": 20000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-156", "Estudio Médico": "Electromiografía (EMG) de Miembros (Control)", "Categoría": "Neurología", "Precio (ARS)": 72500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-157", "Estudio Médico": "Potenciales Evocados Auditivos (Pediátrico)", "Categoría": "Neurología", "Precio (ARS)": 73400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-158", "Estudio Médico": "Impedanciometría (Avanzado)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 20700, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-159", "Estudio Médico": "Electroencefalograma (EEG)", "Categoría": "Neurología", "Precio (ARS)": 45900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-160", "Estudio Médico": "Electroencefalograma con Privación de Sueño (Pediátrico)", "Categoría": "Neurología", "Precio (ARS)": 50000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-161", "Estudio Médico": "Topografía Corneal (Control)", "Categoría": "Oftalmología", "Precio (ARS)": 44500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-162", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (Digital)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 58800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-163", "Estudio Médico": "Retinografía No Midriática (Digital)", "Categoría": "Oftalmología", "Precio (ARS)": 26900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-164", "Estudio Médico": "Estudio Electrofisiológico (Control)", "Categoría": "Cardiología", "Precio (ARS)": 233100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 10}, {"Código": "EST-165", "Estudio Médico": "Tilt Test (Mesa Basculante)", "Categoría": "Cardiología", "Precio (ARS)": 72000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-166", "Estudio Médico": "Fondos de Ojo (Digital)", "Categoría": "Oftalmología", "Precio (ARS)": 15800, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-167", "Estudio Médico": "Electromiografía (EMG) de Miembros (Digital)", "Categoría": "Neurología", "Precio (ARS)": 80300, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-168", "Estudio Médico": "Estudio Electrofisiológico (Digital)", "Categoría": "Cardiología", "Precio (ARS)": 207900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 10}, {"Código": "EST-169", "Estudio Médico": "Electroencefalograma con Privación de Sueño (de Control)", "Categoría": "Neurología", "Precio (ARS)": 56600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-170", "Estudio Médico": "Topografía Corneal (Digital)", "Categoría": "Oftalmología", "Precio (ARS)": 47500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-171", "Estudio Médico": "Histerosalpingografía", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 73400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-172", "Estudio Médico": "Estudio Electrofisiológico (Complejo)", "Categoría": "Cardiología", "Precio (ARS)": 189000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 10}, {"Código": "EST-173", "Estudio Médico": "Presurometría (MAPA de 24 hs) (de Control)", "Categoría": "Cardiología", "Precio (ARS)": 55600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-174", "Estudio Médico": "Video-Nistagmografía (Estudio del Vértigo) (Complejo)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 57200, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-175", "Estudio Médico": "Cardioversión Eléctrica Programada (Avanzado)", "Categoría": "Cardiología", "Precio (ARS)": 156000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-176", "Estudio Médico": "Campo Visual Computarizado (Complejo)", "Categoría": "Oftalmología", "Precio (ARS)": 35700, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-177", "Estudio Médico": "Logoaudiometría (Digital)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 18400, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-178", "Estudio Médico": "Eco Stress con Farmacología (Digital)", "Categoría": "Cardiología", "Precio (ARS)": 107800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-179", "Estudio Médico": "Electromiografía (EMG) de Miembros (Control)", "Categoría": "Neurología", "Precio (ARS)": 88900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-180", "Estudio Médico": "Radiografía de Rodilla (de Control)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 24100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-181", "Estudio Médico": "Mamografía Bilateral (Control)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 37300, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 3}, {"Código": "EST-182", "Estudio Médico": "Radiografía Panorámica Dental (Complejo)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 20500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 1}, {"Código": "EST-183", "Estudio Médico": "HIV (Elisa)", "Categoría": "Laboratorio", "Precio (ARS)": 13400, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-184", "Estudio Médico": "Tomografía de Coherencia Óptica (OCT) (de Control)", "Categoría": "Oftalmología", "Precio (ARS)": 66100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-185", "Estudio Médico": "Topografía Corneal (Avanzado)", "Categoría": "Oftalmología", "Precio (ARS)": 42800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 3}, {"Código": "EST-186", "Estudio Médico": "Mamografía Bilateral (Digital)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 45900, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 3}, {"Código": "EST-187", "Estudio Médico": "Hepatograma (de Rutina)", "Categoría": "Laboratorio", "Precio (ARS)": 14400, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-188", "Estudio Médico": "Densitometría Ósea (de Rutina)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 32500, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 2}, {"Código": "EST-189", "Estudio Médico": "Potenciales Evocados Auditivos (Control)", "Categoría": "Neurología", "Precio (ARS)": 69600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-190", "Estudio Médico": "Tomografía Computada de Senos Paranasales (Avanzado)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 79900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-191", "Estudio Médico": "Rinomanometría (Digital)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 32900, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 2}, {"Código": "EST-192", "Estudio Médico": "Potenciales Evocados Visuales (Pediátrico)", "Categoría": "Neurología", "Precio (ARS)": 74100, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-193", "Estudio Médico": "Cápsula Endoscópica (de Rutina)", "Categoría": "Gastroenterología", "Precio (ARS)": 395500, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 14}, {"Código": "EST-194", "Estudio Médico": "Potenciales Evocados Auditivos (de Rutina)", "Categoría": "Neurología", "Precio (ARS)": 69600, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-195", "Estudio Médico": "Videocolonoscopia (Digital)", "Categoría": "Gastroenterología", "Precio (ARS)": 120800, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 6}, {"Código": "EST-196", "Estudio Médico": "Manometría Esofágica (de Rutina)", "Categoría": "Gastroenterología", "Precio (ARS)": 85400, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-197", "Estudio Médico": "Impedanciometría (de Rutina)", "Categoría": "Otorrinolaringología", "Precio (ARS)": 21700, "Cobertura Obra Social": "Total", "Demora Promedio (días)": 1}, {"Código": "EST-198", "Estudio Médico": "Potenciales Evocados Auditivos (Digital)", "Categoría": "Neurología", "Precio (ARS)": 63000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}, {"Código": "EST-199", "Estudio Médico": "Cardioversión Eléctrica Programada (Control)", "Categoría": "Cardiología", "Precio (ARS)": 168000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 5}, {"Código": "EST-200", "Estudio Médico": "Holter de 24 horas (Pediátrico)", "Categoría": "Cardiología", "Precio (ARS)": 55000, "Cobertura Obra Social": "Parcial", "Demora Promedio (días)": 4}];
+
+        let cart = [];
+        let appliedCoupon = null; // { code: 'MIMAIPU', discountPercent: 20 }
+
+        const coupons = {
+            'MIMAIPU': 20,
+            'ADULTOSMAYORES': 30,
+            'HOSPITAL': 25
+        };
+
+        const searchInput = document.getElementById('searchInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const tableBody = document.getElementById('studiesTableBody');
+        const resultsCount = document.getElementById('resultsCount');
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        const cartTotal = document.getElementById('cartTotal');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const cartDiscount = document.getElementById('cartDiscount');
+        const subtotalContainer = document.getElementById('subtotalContainer');
+        const discountContainer = document.getElementById('discountContainer');
+        const discountLabel = document.getElementById('discountLabel');
+        const cartCountBadge = document.getElementById('cartCountBadge');
+        const couponInput = document.getElementById('couponInput');
+        const couponMessage = document.getElementById('couponMessage');
+
+        function initCategories() {
+            const categories = [...new Set(studiesData.map(item => item['Categoría']))].filter(Boolean).sort();
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                categorySelect.appendChild(opt);
+            });
+        }
+
+        function formatMoney(amount) {
+            return '$' + Math.round(amount).toLocaleString('es-AR');
+        }
+
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            resultsCount.textContent = `${data.length} estudio${data.length === 1 ? '' : 's'}`;
+
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 text-sm">No se encontraron estudios con esos criterios.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const code = item['Código'];
+                const name = item['Estudio Médico'];
+                const category = item['Categoría'];
+                const price = item['Precio (ARS)'];
+                const isSelected = cart.some(cartItem => cartItem['Código'] === code);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-slate-900">${name}</div>
+                        <div class="text-xs text-slate-400 font-mono mt-0.5">${code}</div>
+                    </td>
+                    <td class="px-6 py-4 text-slate-600">${category}</td>
+                    <td class="px-6 py-4 text-right font-semibold text-slate-900">${formatMoney(price)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="toggleCart('${code}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                                isSelected 
+                                    ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200' 
+                                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
+                            }">
+                            ${isSelected ? 'Quitar' : 'Agregar'}
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function filterStudies() {
+            const query = searchInput.value.toLowerCase().trim();
+            const selectedCat = categorySelect.value;
+
+            const filtered = studiesData.filter(item => {
+                const matchesQuery = item['Estudio Médico'].toLowerCase().includes(query) || 
+                                     item['Código'].toLowerCase().includes(query);
+                const matchesCat = !selectedCat || item['Categoría'] === selectedCat;
+                return matchesQuery && matchesCat;
+            });
+
+            renderTable(filtered);
+        }
+
+        function toggleCart(code) {
+            const itemIndex = cart.findIndex(i => i['Código'] === code);
+            if (itemIndex > -1) {
+                cart.splice(itemIndex, 1);
+            } else {
+                const item = studiesData.find(i => i['Código'] === code);
+                if (item) cart.push(item);
+            }
+            updateCartUI();
+            filterStudies();
+        }
+
+        function removeFromCart(code) {
+            cart = cart.filter(i => i['Código'] !== code);
+            updateCartUI();
+            filterStudies();
+        }
+
+        function clearCart() {
+            cart = [];
+            appliedCoupon = null;
+            couponInput.value = '';
+            couponMessage.classList.add('hidden');
+            updateCartUI();
+            filterStudies();
+        }
+
+        function applyCoupon() {
+            const code = couponInput.value.trim().toUpperCase();
+            couponMessage.classList.remove('hidden');
+
+            if (!code) {
+                appliedCoupon = null;
+                couponMessage.textContent = 'Por favor ingresa un código.';
+                couponMessage.className = 'text-xs font-medium text-rose-600';
+                updateCartUI();
+                return;
+            }
+
+            if (coupons.hasOwnProperty(code)) {
+                appliedCoupon = { code: code, percent: coupons[code] };
+                couponMessage.textContent = `¡Cupón ${code} aplicado (${coupons[code]}% OFF)!`;
+                couponMessage.className = 'text-xs font-medium text-emerald-600';
+            } else {
+                appliedCoupon = null;
+                couponMessage.textContent = 'Código de descuento inválido.';
+                couponMessage.className = 'text-xs font-medium text-rose-600';
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            cartCountBadge.textContent = `${cart.length} ítem${cart.length === 1 ? '' : 's'}`;
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `<p class="text-slate-400 text-sm text-center py-6">No hay estudios seleccionados.<br>Haz clic en "Agregar" en la tabla.</p>`;
+                subtotalContainer.classList.add('hidden');
+                discountContainer.classList.add('hidden');
+                cartTotal.textContent = formatMoney(0);
+                return;
+            }
+
+            let subtotal = 0;
+            cartItemsContainer.innerHTML = '';
+
+            cart.forEach(item => {
+                subtotal += item['Precio (ARS)'];
+                const div = document.createElement('div');
+                div.className = "py-2.5 flex justify-between items-center text-sm";
+                div.innerHTML = `
+                    <div class="pr-2">
+                        <div class="font-medium text-slate-800 line-clamp-1">${item['Estudio Médico']}</div>
+                        <div class="text-xs text-slate-500">${formatMoney(item['Precio (ARS)'])}</div>
+                    </div>
+                    <button onclick="removeFromCart('${item['Código']}')" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Eliminar">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                `;
+                cartItemsContainer.appendChild(div);
+            });
+
+            if (appliedCoupon) {
+                const discountAmount = subtotal * (appliedCoupon.percent / 100);
+                const finalTotal = subtotal - discountAmount;
+
+                subtotalContainer.classList.remove('hidden');
+                discountContainer.classList.remove('hidden');
+                cartSubtotal.textContent = formatMoney(subtotal);
+                discountLabel.textContent = `Descuento (${appliedCoupon.code} - ${appliedCoupon.percent}%):`;
+                cartDiscount.textContent = `-${formatMoney(discountAmount)}`;
+                cartTotal.textContent = formatMoney(finalTotal);
+            } else {
+                subtotalContainer.classList.add('hidden');
+                discountContainer.classList.add('hidden');
+                cartTotal.textContent = formatMoney(subtotal);
+            }
+        }
+
+        function shareWhatsApp() {
+            if (cart.length === 0) {
+                alert("Por favor selecciona al menos un estudio para armar el presupuesto.");
+                return;
+            }
+
+            let subtotal = 0;
+            let message = "Hola! Quisiera consultar por el siguiente presupuesto de estudios médicos:\n\n";
+            cart.forEach((item, index) => {
+                message += `${index + 1}. *${item['Estudio Médico']}* (${item['Código']}) - ${formatMoney(item['Precio (ARS)'])}:\n`;
+                subtotal += item['Precio (ARS)'];
+            });
+
+            if (appliedCoupon) {
+                const discountAmount = subtotal * (appliedCoupon.percent / 100);
+                const finalTotal = subtotal - discountAmount;
+                message += `\nSubtotal: ${formatMoney(subtotal)}`;
+                message += `\nDescuento (${appliedCoupon.code} - ${appliedCoupon.percent}%): -${formatMoney(discountAmount)}`;
+                message += `\n*Total Presupuesto: ${formatMoney(finalTotal)}*`;
+            } else {
+                message += `\n*Total Presupuesto: ${formatMoney(subtotal)}*`;
+            }
+
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        searchInput.addEventListener('input', filterStudies);
+        categorySelect.addEventListener('change', filterStudies);
+
+        initCategories();
+
+        function loadLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('logoPreview');
+                    const placeholder = document.getElementById('logoPlaceholderText');
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        renderTable(studiesData);
+    </script>
+</body>
+</html>
