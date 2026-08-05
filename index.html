@@ -12,7 +12,6 @@
 </head>
 <body style="background-color: #FFFFFF;" class="text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header style="background-color: #70006a;" class="text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-5 flex items-center gap-4">
             <img src="image_0.png" alt="Logo Diagnóstico Maipú" class="h-12 sm:h-14 object-contain">
@@ -21,505 +20,188 @@
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Left 2 Columns: Search & Catalog -->
         <div class="lg:col-span-2 space-y-6">
             
-            <!-- Filters Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
-                <h2 class="text-lg font-semibold text-slate-900">Buscar Estudios</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Filtrar por nombre o código</label>
-                        <input type="text" id="searchInput" placeholder="Ej. Resonancia, Glucemia, EST-001..." 
-                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Categoría</label>
-                        <select id="categorySelect" 
-                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-                            <option value="">Todas las categorías</option>
-                        </select>
-                    </div>
+            <div class="bg-slate-50 border border-slate-200 p-4 sm:p-6 rounded-2xl shadow-sm space-y-4">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Buscar Estudios Médicos
+                </h2>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="searchInput" oninput="filterStudies()" placeholder="Escribí el nombre del estudio (ej. Hemograma, Tomografía...)" 
+                           class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent text-sm">
+                    
+                    <select id="categoryFilter" onchange="filterStudies()" class="px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm bg-white">
+                        <option value="TODAS">Todas las categorías</option>
+                        <option value="Laboratorio">Laboratorio</option>
+                        <option value="Diagnóstico por Imágenes">Diagnóstico por Imágenes</option>
+                        <option value="Cardiología">Cardiología</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Table / Results Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-semibold text-slate-900">Listado de Estudios</h3>
-                    <span id="resultsCount" class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">Mostrando estudios</span>
+            <!-- Caja contenedora con desplazamiento (Scroll) -->
+            <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl shadow-sm">
+                <div id="studiesList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
                 </div>
-                <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                            <tr>
-                                <th class="px-6 py-3">Estudio</th>
-                                <th class="px-6 py-3">Categoría</th>
-                                <th class="px-6 py-3 text-right">Precio</th>
-                                <th class="px-6 py-3 text-center">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studiesTableBody" class="divide-y divide-slate-100 text-sm">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <!-- Leyenda de validez debajo del listado de estudios -->
-            <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200 text-center">
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    El presupuesto tendrá validez de 30 días a partir del día de la fecha.
-                </p>
             </div>
         </div>
 
-        <!-- Right Column: Budget / Cart -->
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 sticky top-6">
-                <div class="flex justify-between items-center pb-4 border-b border-slate-100">
-                    <h2 class="text-lg font-semibold text-slate-900">Estudios seleccionados</h2>
-                    <span id="cartCountBadge" class="bg-blue-100 text-blue-700 font-semibold text-xs px-2.5 py-1 rounded-full">0 ítems</span>
+        <div class="lg:col-span-1">
+            <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm sticky top-8 space-y-5">
+                <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        Presupuesto
+                    </h2>
+                    <span id="cartCount" class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-1 rounded-full">0 seleccionados</span>
                 </div>
 
-                <!-- Cart Items List -->
-                <div id="cartItemsContainer" class="py-4 space-y-3 max-h-[220px] overflow-y-auto divide-y divide-slate-50">
-                    <p class="text-slate-400 text-sm text-center py-6">No hay estudios seleccionados.<br>Haz clic en "Agregar" en la tabla.</p>
+                <div id="cartItems" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                    <p class="text-slate-400 text-sm italic text-center py-4">No agregaste ningún estudio aún.</p>
                 </div>
 
-                <!-- Coupon Section -->
-                <div class="py-3 border-t border-slate-100 space-y-2">
-                    <div class="flex justify-between items-center">
-                        <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider">Código de Descuento</label>
-                        <button onclick="openCouponModal()" class="text-xs text-purple-700 hover:text-purple-900 font-medium underline transition">
-                            Ver descuentos disponibles
+                <div class="border-t border-slate-200 pt-4">
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="text-xs text-slate-600 font-medium">¿Tenés un descuento?</span>
+                        <button onclick="openCouponModal()" class="text-xs text-purple-700 font-bold hover:underline focus:outline-none">
+                            Seleccionar o ingresar
                         </button>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="couponInput" placeholder="Ej. MIMAIPU" 
-                            class="flex-grow px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-                        <button onclick="applyCoupon()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg text-sm transition">
-                            Aplicar
-                        </button>
+                    <div id="appliedCouponTag" class="mt-2 hidden">
+                        <div class="p-2 bg-purple-50 border border-purple-200 rounded-lg flex justify-between items-center text-xs text-purple-900">
+                            <span class="font-semibold" id="couponName"></span>
+                            <button onclick="removeCoupon()" class="text-purple-500 hover:text-purple-800 font-bold">×</button>
+                        </div>
                     </div>
-                    <div id="couponMessage" class="text-xs font-medium hidden"></div>
                 </div>
 
-                <!-- DNI / Documento Section -->
-                <div class="py-3 border-t border-slate-100 space-y-2">
-                    <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider">Número de Documento (DNI)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="patientDni" placeholder="Ej. 35123456" 
-                            class="flex-grow px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition">
-                        <button onclick="applyDni()" class="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-medium rounded-lg text-sm transition">
-                            Ver presupuesto
+                <!-- Sección para ingresar y confirmar DNI -->
+                <div class="border-t border-slate-200 pt-4 space-y-2">
+                    <label for="dniInput" class="block text-xs font-semibold text-slate-700">
+                        Número de Documento (DNI):
+                    </label>
+                    <div id="dniInputContainer" class="flex gap-2">
+                        <input type="text" id="dniInput" placeholder="Ej: 35123456" 
+                               class="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+                        <button onclick="confirmDNI()" class="px-3 py-2 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-lg transition whitespace-nowrap">
+                            Confirmar
                         </button>
                     </div>
-                    <div id="dniMessage" class="text-xs font-medium hidden"></div>
-                    <div id="dniErrorMsg" class="text-xs font-medium text-rose-600 hidden">Ingresa un DNI válido (mínimo 6 dígitos).</div>
+                    <p id="dniError" class="text-xs text-rose-600 font-medium hidden">Por favor, ingresá un DNI válido.</p>
+
+                    <div id="dniConfirmedBadge" class="hidden p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex justify-between items-center text-xs text-emerald-900">
+                        <span class="font-semibold">DNI: <span id="confirmedDniValue"></span></span>
+                        <button onclick="resetDNI()" class="text-emerald-700 hover:text-emerald-900 font-bold text-xs underline">Cambiar</button>
+                    </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-100 space-y-3">
-                    <div id="subtotalContainer" class="hidden justify-between items-center text-sm text-slate-600">
-                        <span>Valor de estudios:</span>
-                        <span id="cartSubtotal">$0</span>
+                <div class="border-t border-slate-200 pt-4 space-y-2 text-sm">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Subtotal Estudios:</span>
+                        <span id="subtotalAmount" class="font-medium">$0</span>
                     </div>
-                    <div id="ivaContainer" class="hidden justify-between items-center text-sm text-slate-600">
+
+                    <div id="discountRow" class="flex justify-between text-emerald-600 hidden">
+                        <span>Descuento Aplicado:</span>
+                        <span id="discountAmount" class="font-bold">-$0</span>
+                    </div>
+
+                    <div id="apbRow" class="flex justify-between items-center text-xs py-1.5 px-2 bg-amber-50 border border-amber-200/80 rounded-lg text-amber-900 hidden">
+                        <span class="flex items-center gap-1 font-medium">
+                            <svg class="w-3.5 h-3.5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Arancel APB (Laboratorio)
+                        </span>
+                        <span class="font-bold">+ $25.000</span>
+                    </div>
+
+                    <div id="ivaRow" class="flex justify-between text-slate-600">
                         <span>IVA (21%):</span>
-                        <span id="cartIva">$0</span>
-                    </div>
-                    <div id="discountContainer" class="hidden justify-between items-center text-sm text-emerald-600 font-medium">
-                        <span id="discountLabel">Descuento:</span>
-                        <span id="cartDiscount">-$0</span>
-                    </div>
-                    <div class="flex justify-between items-center text-lg font-bold text-slate-900 pt-2 border-t border-slate-100">
-                        <span>Valor Total:</span>
-                        <span id="cartTotal" class="text-blue-600">$0</span>
-                    </div>
-                    <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed">
-                        <strong>⚠️ Importante:</strong> Este presupuesto es de carácter orientativo y se encuentra sujeto a validación final por parte de un operador antes de la asignación y toma definitiva del turno.
+                        <span id="ivaAmount" class="font-medium">$0</span>
                     </div>
 
-                    <div class="space-y-2 pt-2">
-                        <button onclick="clearCart()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-sm transition">
-                            Vaciar Presupuesto
-                        </button>
-                        <button onclick="shareWhatsApp()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-sm">
-                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                            Sacá turno por WhatsApp
-                        </button>
+                    <div class="border-t border-slate-200 pt-3 flex justify-between items-center text-base font-bold text-slate-900">
+                        <span>Total Estimado:</span>
+                        <div id="totalContainer">
+                            <span id="totalAmount" class="text-xl text-purple-800 hidden">$0</span>
+                            <span id="dniPlaceholder" class="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md font-medium inline-block">
+                                Ingrese DNI para ver el total
+                            </span>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Cuadro de aviso explicativo estilo modal de descuentos -->
+                <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start gap-2.5 text-amber-900">
+                    <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-xs leading-relaxed text-amber-800">
+                        <span class="font-semibold">Importante:</span> Este presupuesto es de carácter orientativo y se encuentra sujeto a validación final por parte de un operador antes de la asignación y toma definitiva del turno.
+                    </p>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <button onclick="clearCart()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition">
+                        Vaciar Presupuesto
+                    </button>
+
+                    <!-- Botón para compartir presupuesto vía WhatsApp -->
+                    <button onclick="shareWhatsApp()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                        Sacá turno por Whatsapp
+                    </button>
                 </div>
             </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-auto py-6 text-center text-xs text-slate-500">
-        Diagnóstico Maipú &copy; 2026 — Todos los derechos reservados
+    <footer style="background-color: #70006a;" class="text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6 text-center text-xs sm:text-sm font-medium tracking-wide">
+            Diagnóstico Maipú © 2026 — Todos los derechos reservados
+        </div>
     </footer>
 
-    <script>
-        const studiesData = [
-            {"Código": "EST-001", "Estudio Médico": "Fondos de Ojo", "Categoría": "Oftalmología", "Precio (ARS)": 14400},
-            {"Código": "EST-002", "Estudio Médico": "Paquimetría Corneal", "Categoría": "Oftalmología", "Precio (ARS)": 24200},
-            {"Código": "EST-003", "Estudio Médico": "Mamografía Bilateral", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 46300},
-            {"Código": "EST-004", "Estudio Médico": "Proteinograma por Electroforesis", "Categoría": "Laboratorio", "Precio (ARS)": 20200},
-            {"Código": "EST-005", "Estudio Médico": "Potenciales Evocados Auditivos", "Categoría": "Neurología", "Precio (ARS)": 59200},
-            {"Código": "EST-006", "Estudio Médico": "Glucemia en Ayunas", "Categoría": "Laboratorio", "Precio (ARS)": 7700},
-            {"Código": "EST-007", "Estudio Médico": "Tomografía Dental 3D", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 81800},
-            {"Código": "EST-009", "Estudio Médico": "Retinografía No Midriática", "Categoría": "Oftalmología", "Precio (ARS)": 30000},
-            {"Código": "EST-010", "Estudio Médico": "Videocolonoscopia", "Categoría": "Gastroenterología", "Precio (ARS)": 119600},
-            {"Código": "EST-011", "Estudio Médico": "Electromiografía (EMG) de Miembros", "Categoría": "Neurología", "Precio (ARS)": 89700},
-            {"Código": "EST-012", "Estudio Médico": "Audiometría Tonal y Vocal", "Categoría": "Otorrinolaringología", "Precio (ARS)": 25100},
-            {"Código": "EST-015", "Estudio Médico": "Ecografía Mamaria Bilateral", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 38800},
-            {"Código": "EST-016", "Estudio Médico": "Ergometría (Prueba de Esfuerzo)", "Categoría": "Cardiología", "Precio (ARS)": 44200},
-            {"Código": "EST-017", "Estudio Médico": "Endoscopia Digestiva Alta", "Categoría": "Gastroenterología", "Precio (ARS)": 96000},
-            {"Código": "EST-019", "Estudio Médico": "Electrocardiograma (ECG)", "Categoría": "Cardiología", "Precio (ARS)": 20300},
-            {"Código": "EST-024", "Estudio Médico": "Perfil Lipídico", "Categoría": "Laboratorio", "Precio (ARS)": 16600},
-            {"Código": "EST-025", "Estudio Médico": "Radiografía de Rodilla", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 19300},
-            {"Código": "EST-029", "Estudio Médico": "Holter de 24 horas", "Categoría": "Cardiología", "Precio (ARS)": 61000},
-            {"Código": "EST-031", "Estudio Médico": "Resonancia Magnética de Columna Lumbar", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 152600},
-            {"Código": "EST-032", "Estudio Médico": "Densitometría Ósea", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 30200},
-            {"Código": "EST-037", "Estudio Médico": "Orina Completa", "Categoría": "Laboratorio", "Precio (ARS)": 8100},
-            {"Código": "EST-039", "Estudio Médico": "pH-metría Esofágica de 24 horas", "Categoría": "Gastroenterología", "Precio (ARS)": 90200},
-            {"Código": "EST-053", "Estudio Médico": "Eco Doppler Cardíaco (Ecocardiograma)", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 55800},
-            {"Código": "EST-058", "Estudio Médico": "Resonancia Magnética de Rodilla", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 148200},
-            {"Código": "EST-060", "Estudio Médico": "Hemoglobina Glicosilada (HbA1c)", "Categoría": "Laboratorio", "Precio (ARS)": 15500},
-            {"Código": "EST-086", "Estudio Médico": "Hepatograma", "Categoría": "Laboratorio", "Precio (ARS)": 12700},
-            {"Código": "EST-091", "Estudio Médico": "Resonancia Magnética de Cerebro", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 130000},
-            {"Código": "EST-094", "Estudio Médico": "Coagulograma", "Categoría": "Laboratorio", "Precio (ARS)": 15200},
-            {"Código": "EST-102", "Estudio Médico": "Ecografía Abdominal Total", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 37800},
-            {"Código": "EST-112", "Estudio Médico": "Presurometría (MAPA de 24 hs)", "Categoría": "Cardiología", "Precio (ARS)": 51800},
-            {"Código": "EST-124", "Estudio Médico": "Urea y Creatinina", "Categoría": "Laboratorio", "Precio (ARS)": 9300},
-            {"Código": "EST-131", "Estudio Médico": "Hemograma Completo", "Categoría": "Laboratorio", "Precio (ARS)": 12500},
-            {"Código": "EST-137", "Estudio Médico": "Eco Doppler de Vasos de Cuello", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 54500},
-            {"Código": "EST-138", "Estudio Médico": "Vitamina D (25-OH)", "Categoría": "Laboratorio", "Precio (ARS)": 28300},
-            {"Código": "EST-140", "Estudio Médico": "Campo Visual Computarizado", "Categoría": "Oftalmología", "Precio (ARS)": 37700},
-            {"Código": "EST-143", "Estudio Médico": "Ecografía Ginecológica Transvaginal", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 34200},
-            {"Código": "EST-155", "Estudio Médico": "Perfil Tiroideo (TSH, T3, T4)", "Categoría": "Laboratorio", "Precio (ARS)": 20000},
-            {"Código": "EST-159", "Estudio Médico": "Electroencefalograma (EEG)", "Categoría": "Neurología", "Precio (ARS)": 45900},
-            {"Código": "EST-171", "Estudio Médico": "Histerosalpingografía", "Categoría": "Diagnóstico por Imágenes", "Precio (ARS)": 73400}
-        ];
-
-        let cart = [];
-        let appliedCoupon = null;
-        let verifiedDni = null;
-
-        const coupons = {
-            'MIMAIPU': 20,
-            'ADULTOSMAYORES': 30,
-            'HOSPITAL': 25
-        };
-
-        const searchInput = document.getElementById('searchInput');
-        const categorySelect = document.getElementById('categorySelect');
-        const tableBody = document.getElementById('studiesTableBody');
-        const resultsCount = document.getElementById('resultsCount');
-        const cartItemsContainer = document.getElementById('cartItemsContainer');
-        const cartTotal = document.getElementById('cartTotal');
-        const cartSubtotal = document.getElementById('cartSubtotal');
-        const cartDiscount = document.getElementById('cartDiscount');
-        const subtotalContainer = document.getElementById('subtotalContainer');
-        const discountContainer = document.getElementById('discountContainer');
-        const discountLabel = document.getElementById('discountLabel');
-        const cartCountBadge = document.getElementById('cartCountBadge');
-        const couponInput = document.getElementById('couponInput');
-        const couponMessage = document.getElementById('couponMessage');
-
-        function initCategories() {
-            const categories = [...new Set(studiesData.map(item => item['Categoría']))].filter(Boolean).sort();
-            categories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                categorySelect.appendChild(opt);
-            });
-        }
-
-        function formatMoney(amount) {
-            return '$' + Math.round(amount).toLocaleString('es-AR');
-        }
-
-        function renderTable(data) {
-            tableBody.innerHTML = '';
-            resultsCount.textContent = `${data.length} estudio${data.length === 1 ? '' : 's'}`;
-
-            if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 text-sm">No se encontraron estudios con esos criterios.</td></tr>`;
-                return;
-            }
-
-            data.forEach(item => {
-                const code = item['Código'];
-                const name = item['Estudio Médico'];
-                const category = item['Categoría'];
-                const price = item['Precio (ARS)'];
-                const isSelected = cart.some(cartItem => cartItem['Código'] === code);
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition";
-                tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="font-medium text-slate-900">${name}</div>
-                        <div class="text-xs text-slate-400 font-mono mt-0.5">${code}</div>
-                    </td>
-                    <td class="px-6 py-4 text-slate-600">${category}</td>
-                    <td class="px-6 py-4 text-right font-semibold text-slate-900">${formatMoney(price)}</td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="toggleCart('${code}')" 
-                            class="px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                                isSelected 
-                                    ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200' 
-                                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
-                            }">
-                            ${isSelected ? 'Quitar' : 'Agregar'}
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        function filterStudies() {
-            const query = searchInput.value.toLowerCase().trim();
-            const selectedCat = categorySelect.value;
-
-            const filtered = studiesData.filter(item => {
-                const matchesQuery = item['Estudio Médico'].toLowerCase().includes(query) || 
-                                     item['Código'].toLowerCase().includes(query);
-                const matchesCat = !selectedCat || item['Categoría'] === selectedCat;
-                return matchesQuery && matchesCat;
-            });
-
-            renderTable(filtered);
-        }
-
-        function toggleCart(code) {
-            const itemIndex = cart.findIndex(i => i['Código'] === code);
-            if (itemIndex > -1) {
-                cart.splice(itemIndex, 1);
-            } else {
-                const item = studiesData.find(i => i['Código'] === code);
-                if (item) cart.push(item);
-            }
-            updateCartUI();
-            filterStudies();
-        }
-
-        function removeFromCart(code) {
-            cart = cart.filter(i => i['Código'] !== code);
-            updateCartUI();
-            filterStudies();
-        }
-
-        function clearCart() {
-            cart = [];
-            appliedCoupon = null;
-            verifiedDni = null;
-            couponInput.value = '';
-            const dniInput = document.getElementById('patientDni');
-            if (dniInput) dniInput.value = '';
-            const dniMessage = document.getElementById('dniMessage');
-            if (dniMessage) dniMessage.classList.add('hidden');
-            couponMessage.classList.add('hidden');
-            updateCartUI();
-            filterStudies();
-        }
-
-        function applyDni() {
-            const dniInput = document.getElementById('patientDni');
-            const dniMessage = document.getElementById('dniMessage');
-            const dniValue = dniInput.value.trim();
-
-            dniMessage.classList.remove('hidden');
-            if (!dniValue || dniValue.length < 6) {
-                verifiedDni = null;
-                dniMessage.textContent = 'Por favor ingresa un DNI válido.';
-                dniMessage.className = 'text-xs font-medium text-rose-600';
-            } else {
-                verifiedDni = dniValue;
-                dniMessage.textContent = `¡DNI ${dniValue} verificado! Total desbloqueado.`;
-                dniMessage.className = 'text-xs font-medium text-emerald-600';
-            }
-            updateCartUI();
-        }
-
-        function applyCoupon() {
-            const code = couponInput.value.trim().toUpperCase();
-            couponMessage.classList.remove('hidden');
-
-            if (!code) {
-                appliedCoupon = null;
-                couponMessage.textContent = 'Por favor ingresa un código.';
-                couponMessage.className = 'text-xs font-medium text-rose-600';
-                updateCartUI();
-                return;
-            }
-
-            if (coupons.hasOwnProperty(code)) {
-                appliedCoupon = { code: code, percent: coupons[code] };
-                couponMessage.textContent = `¡Cupón ${code} aplicado (${coupons[code]}% OFF)!`;
-                couponMessage.className = 'text-xs font-medium text-emerald-600';
-            } else {
-                appliedCoupon = null;
-                couponMessage.textContent = 'Código de descuento inválido.';
-                couponMessage.className = 'text-xs font-medium text-rose-600';
-            }
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            cartCountBadge.textContent = `${cart.length} ítem${cart.length === 1 ? '' : 's'}`;
+    <div id="couponModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 flex flex-col gap-4">
             
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = `<p class="text-slate-400 text-sm text-center py-6">No hay estudios seleccionados.<br>Haz clic en "Agregar" en la tabla.</p>`;
-                subtotalContainer.classList.add('hidden');
-                discountContainer.classList.add('hidden');
-                const ivaContainer = document.getElementById('ivaContainer');
-                if (ivaContainer) ivaContainer.classList.add('hidden');
-                cartTotal.textContent = formatMoney(0);
-                return;
-            }
-
-            let subtotal = 0;
-            cartItemsContainer.innerHTML = '';
-
-            cart.forEach(item => {
-                subtotal += item['Precio (ARS)'];
-                const div = document.createElement('div');
-                div.className = "py-2.5 flex justify-between items-center text-sm";
-                div.innerHTML = `
-                    <div class="pr-2">
-                        <div class="font-medium text-slate-800 line-clamp-1">${item['Estudio Médico']}</div>
-                        <div class="text-xs text-slate-500">${formatMoney(item['Precio (ARS)'])}</div>
-                    </div>
-                    <button onclick="removeFromCart('${item['Código']}')" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Eliminar">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                `;
-                cartItemsContainer.appendChild(div);
-            });
-
-            const ivaContainer = document.getElementById('ivaContainer');
-            const cartIva = document.getElementById('cartIva');
-
-            if (verifiedDni) {
-                subtotalContainer.classList.remove('hidden');
-                ivaContainer.classList.remove('hidden');
-                cartSubtotal.textContent = formatMoney(subtotal);
-                
-                const ivaAmount = subtotal * 0.21;
-                cartIva.textContent = formatMoney(ivaAmount);
-
-                let baseTotal = subtotal + ivaAmount;
-
-                if (appliedCoupon) {
-                    const discountAmount = baseTotal * (appliedCoupon.percent / 100);
-                    const finalTotal = baseTotal - discountAmount;
-
-                    discountContainer.classList.remove('hidden');
-                    discountLabel.textContent = `Descuento (${appliedCoupon.code} - ${appliedCoupon.percent}%):`;
-                    cartDiscount.textContent = `-${formatMoney(discountAmount)}`;
-                    cartTotal.textContent = formatMoney(finalTotal);
-                    cartTotal.className = "text-blue-600 text-lg font-bold";
-                } else {
-                    discountContainer.classList.add('hidden');
-                    cartTotal.textContent = formatMoney(baseTotal);
-                    cartTotal.className = "text-blue-600 text-lg font-bold";
-                }
-            } else {
-                subtotalContainer.classList.add('hidden');
-                ivaContainer.classList.add('hidden');
-                discountContainer.classList.add('hidden');
-                cartTotal.textContent = "Ingrese DNI para ver";
-                cartTotal.className = "text-amber-600 text-xs sm:text-sm font-semibold";
-            }
-        }
-
-        function shareWhatsApp() {
-            if (cart.length === 0) {
-                alert("Por favor selecciona al menos un estudio para armar el presupuesto.");
-                return;
-            }
-
-            if (!verifiedDni) {
-                alert("Por favor ingresa y aplica tu número de DNI para poder enviar el presupuesto final.");
-                document.getElementById('patientDni').focus();
-                return;
-            }
-
-            let subtotal = 0;
-            let message = "Hola! Quisiera consultar por el siguiente presupuesto de estudios médicos (DNI: " + verifiedDni + ")\n\n";
-            cart.forEach((item, index) => {
-                message += `${index + 1}. *${item['Estudio Médico']}* (${item['Código']}) - ${formatMoney(item['Precio (ARS)'])}:\n`;
-                subtotal += item['Precio (ARS)'];
-            });
-
-            const ivaAmount = subtotal * 0.21;
-            let baseTotal = subtotal + ivaAmount;
-
-            message += `\nValor de estudios: ${formatMoney(subtotal)}`;
-            message += `\nIVA (21%): ${formatMoney(ivaAmount)}`;
-
-            if (appliedCoupon) {
-                const discountAmount = baseTotal * (appliedCoupon.percent / 100);
-                const finalTotal = baseTotal - discountAmount;
-                message += `\nDescuento (${appliedCoupon.code} - ${appliedCoupon.percent}%): -${formatMoney(discountAmount)}`;
-                message += `\n*Valor Total: ${formatMoney(finalTotal)}*`;
-            } else {
-                message += `\n*Valor Total: ${formatMoney(baseTotal)}*`;
-            }
-
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
-        searchInput.addEventListener('input', filterStudies);
-        categorySelect.addEventListener('change', filterStudies);
-
-        // Inicializar
-        
-        function openCouponModal() {
-            document.getElementById('couponModal').classList.remove('hidden');
-        }
-
-        function closeCouponModal() {
-            document.getElementById('couponModal').classList.add('hidden');
-        }
-
-        function selectCoupon(code) {
-            document.getElementById('couponInput').value = code;
-            closeCouponModal();
-            applyCoupon();
-        }
-
-        initCategories();
-        renderTable(studiesData);
-    </script>
-
-    <!-- Modal / Popup de Códigos Disponibles -->
-    <div id="couponModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-slate-100 animate-in fade-in zoom-in duration-200">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="text-lg font-bold text-slate-900">Códigos de Descuento Disponibles</h3>
-                <button onclick="closeCouponModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    Aplicar código de descuento
+                </h3>
+                <button onclick="closeCouponModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
                 </button>
             </div>
-            <p class="text-xs text-slate-600">Selecciona o ingresa uno de los siguientes códigos habilitados según tu beneficio:</p>
+
             <div class="space-y-2.5">
                 <div class="p-3 bg-purple-50/60 border border-purple-100 rounded-xl flex justify-between items-center gap-2">
                     <div>
                         <span class="font-bold text-purple-900 text-sm">MIMAIPU</span>
-                        <p class="text-xs text-purple-700 mt-0.5">20% de descuento con Credencial Mi Maipú.</p>
+                        <p class="text-xs text-purple-700 mt-0.5">20% de descuento con Credencial Mi Maipú</p>
                     </div>
                     <button onclick="selectCoupon('MIMAIPU')" class="px-3 py-1.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-medium rounded-lg transition shadow-sm whitespace-nowrap">
                         Usar código
                     </button>
                 </div>
+
                 <div class="p-3 bg-purple-50/60 border border-purple-100 rounded-xl flex justify-between items-center gap-2">
                     <div>
                         <span class="font-bold text-purple-900 text-sm">ADULTOSMAYORES</span>
@@ -529,6 +211,7 @@
                         Usar código
                     </button>
                 </div>
+
                 <div class="p-3 bg-purple-50/60 border border-purple-100 rounded-xl flex justify-between items-center gap-2">
                     <div>
                         <span class="font-bold text-purple-900 text-sm">HOSPITAL</span>
@@ -538,22 +221,345 @@
                         Usar código
                     </button>
                 </div>
-                <div class="mt-4 p-3 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start gap-2.5 text-amber-900">
-    <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    <p class="text-xs leading-relaxed text-amber-800">
-        <span class="font-semibold">Aviso importante:</span> Los descuentos se aplican sobre el precio de lista. No aplican sobre contrastes, descartables, medicamentos, radioactivos ni APB.
-    </p>
-</div>
             </div>
+
+            <div class="mt-4 p-3 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start gap-2.5 text-amber-900">
+                <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-xs leading-relaxed text-amber-800">
+                    <span class="font-semibold">Aviso importante:</span> Los descuentos se aplican sobre el precio de lista. No aplican sobre contrastes, descartables, medicamentos, radioactivos ni APB.
+                </p>
+            </div>
+
             <div class="pt-2">
                 <button onclick="closeCouponModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-sm transition">
                     Cerrar
                 </button>
             </div>
+
         </div>
     </div>
 
+    <script>
+        const APB_COSTO = 25000;
+
+        const studiesDatabase = [
+            { id: 1, codigo: "EST-003", nombre: "Mamografía Bilateral", categoria: "Diagnóstico por Imágenes", precio: 46300 },
+            { id: 2, codigo: "EST-004", nombre: "Proteinograma por Electroforesis", categoria: "Laboratorio", precio: 20200 },
+            { id: 3, codigo: "EST-006", nombre: "Glucemia en Ayunas", categoria: "Laboratorio", precio: 7700 },
+            { id: 4, codigo: "EST-007", nombre: "Tomografía Dental (Dent 3 / DScann)", categoria: "Diagnóstico por Imágenes", precio: 81800 },
+            { id: 5, codigo: "EST-008", nombre: "Proteinograma por Electroforesis (de Control)", categoria: "Laboratorio", precio: 24600 },
+            { id: 6, codigo: "EST-015", nombre: "Ecografía Mamaria Bilateral", categoria: "Diagnóstico por Imágenes", precio: 38800 },
+            { id: 7, codigo: "EST-016", nombre: "Ergometría (Prueba de Esfuerzo)", categoria: "Cardiología", precio: 44200 },
+            { id: 8, codigo: "EST-019", nombre: "Electrocardiograma (ECG)", categoria: "Cardiología", precio: 20300 },
+            { id: 9, codigo: "EST-024", nombre: "Perfil Lipídico", categoria: "Laboratorio", precio: 16600 },
+            { id: 10, codigo: "EST-025", nombre: "Radiografía de Rodilla", categoria: "Diagnóstico por Imágenes", precio: 19300 },
+            { id: 11, codigo: "EST-029", nombre: "Holter de 24 horas", categoria: "Cardiología", precio: 61000 },
+            { id: 12, codigo: "EST-030", nombre: "Ergometría (Prueba de Esfuerzo) (Complejo)", categoria: "Cardiología", precio: 52800 },
+            { id: 13, codigo: "EST-031", nombre: "Resonancia Magnética de Columna Lumbar", categoria: "Diagnóstico por Imágenes", precio: 152600 },
+            { id: 14, codigo: "EST-032", nombre: "Densitometría Ósea", categoria: "Diagnóstico por Imágenes", precio: 30200 },
+            { id: 15, codigo: "EST-037", nombre: "Orina Completa", categoria: "Laboratorio", precio: 8100 },
+            { id: 16, codigo: "EST-041", nombre: "Resonancia Magnética de Columna Lumbar (Complejo)", categoria: "Diagnóstico por Imágenes", precio: 132300 },
+            { id: 17, codigo: "EST-044", nombre: "Tomografía Dental (Dent 3 / DScann) (Avanzado)", categoria: "Diagnóstico por Imágenes", precio: 69000 },
+            { id: 18, codigo: "EST-046", nombre: "Densitometría Ósea (de Rutina)", categoria: "Diagnóstico por Imágenes", precio: 32200 },
+            { id: 19, codigo: "EST-049", nombre: "Eco Stress con Farmacología", categoria: "Cardiología", precio: 88200 },
+            { id: 20, codigo: "EST-052", nombre: "Ergometría (Prueba de Esfuerzo) (Pediátrico)", categoria: "Cardiología", precio: 49400 },
+            { id: 21, codigo: "EST-053", nombre: "Eco Doppler Cardiaco (Ecocardiograma)", categoria: "Diagnóstico por Imágenes", precio: 55800 },
+            { id: 22, codigo: "EST-058", nombre: "Resonancia Magnética de Rodilla", categoria: "Diagnóstico por Imágenes", precio: 148200 },
+            { id: 23, codigo: "EST-059", nombre: "Resonancia Magnética de Columna Lumbar (de Rutina)", categoria: "Diagnóstico por Imágenes", precio: 143100 },
+            { id: 24, codigo: "EST-060", nombre: "Hemoglobina Glicosilada (HbA1c)", categoria: "Laboratorio", precio: 15500 },
+            { id: 25, codigo: "EST-063", nombre: "Ecografía Vesico-Prostática", categoria: "Diagnóstico por Imágenes", precio: 29400 },
+            { id: 26, codigo: "EST-064", nombre: "Serología para Chagas", categoria: "Laboratorio", precio: 13300 },
+            { id: 27, codigo: "EST-066", nombre: "Radiografía Panorámica Dental", categoria: "Diagnóstico por Imágenes", precio: 19300 },
+            { id: 28, codigo: "EST-067", nombre: "Radiografía de Columna Cervical", categoria: "Diagnóstico por Imágenes", precio: 24400 },
+            { id: 29, codigo: "EST-070", nombre: "Radiografía de Rodilla (Avanzado)", categoria: "Diagnóstico por Imágenes", precio: 23300 },
+            { id: 30, codigo: "EST-073", nombre: "Vitamina B12 y Ácido Fólico", categoria: "Laboratorio", precio: 23400 },
+            { id: 31, codigo: "EST-075", nombre: "Radiografía de Tórax AP y Perfil", categoria: "Diagnóstico por Imágenes", precio: 20200 },
+            { id: 32, codigo: "EST-077", nombre: "Perfil Lipídico (de Rutina)", categoria: "Laboratorio", precio: 15000 },
+            { id: 33, codigo: "EST-078", nombre: "Clearence de Creatinina", categoria: "Laboratorio", precio: 17500 },
+            { id: 34, codigo: "EST-079", nombre: "Cardioversión Eléctrica Programada", categoria: "Cardiología", precio: 144000 },
+            { id: 35, codigo: "EST-083", nombre: "Tomografía Computada de Senos Paranasales", categoria: "Diagnóstico por Imágenes", precio: 79000 },
+            { id: 36, codigo: "EST-086", nombre: "Hepatograma", categoria: "Laboratorio", precio: 12700 },
+            { id: 37, codigo: "EST-089", nombre: "Resonancia Magnética de Columna Lumbar (Avanzado)", categoria: "Diagnóstico por Imágenes", precio: 126900 },
+            { id: 38, codigo: "EST-091", nombre: "Resonancia Magnética de Cerebro", categoria: "Diagnóstico por Imágenes", precio: 130000 },
+            { id: 39, codigo: "EST-094", nombre: "Coagulograma", categoria: "Laboratorio", precio: 15200 },
+            { id: 40, codigo: "EST-097", nombre: "Ecografía de Partes Blandas", categoria: "Diagnóstico por Imágenes", precio: 25200 },
+            { id: 41, codigo: "EST-102", nombre: "Ecografía Abdominal Total", categoria: "Diagnóstico por Imágenes", precio: 37800 },
+            { id: 42, codigo: "EST-104", nombre: "Electrocardiograma (ECG) (Control)", categoria: "Cardiología", precio: 19400 },
+            { id: 43, codigo: "EST-106", nombre: "Ecografía Abdominal Total (Complejo)", categoria: "Diagnóstico por Imágenes", precio: 32200 },
+            { id: 44, codigo: "EST-108", nombre: "Coagulograma (Avanzado)", categoria: "Laboratorio", precio: 14900 },
+            { id: 45, codigo: "EST-110", nombre: "Hemoglobina Glicosilada (HbA1c) (Control)", categoria: "Laboratorio", precio: 16000 },
+            { id: 46, codigo: "EST-112", nombre: "Presurometría (MAPA de 24 hs)", categoria: "Cardiología", precio: 51800 },
+            { id: 47, codigo: "EST-114", nombre: "Estudio Electrofisiológico", categoria: "Cardiología", precio: 197400 },
+            { id: 48, codigo: "EST-116", nombre: "Ergometría (Prueba de Esfuerzo) (Control)", categoria: "Cardiología", precio: 49900 },
+            { id: 49, codigo: "EST-119", nombre: "Resonancia Magnética de Rodilla (Control)", categoria: "Diagnóstico por Imágenes", precio: 126100 },
+            { id: 50, codigo: "EST-120", nombre: "Presurometría (MAPA de 24 hs) (de Control)", categoria: "Cardiología", precio: 56200 },
+            { id: 51, codigo: "EST-124", nombre: "Urea y Creatinina", categoria: "Laboratorio", precio: 9300 },
+            { id: 52, codigo: "EST-125", nombre: "Hepatograma (Digital)", categoria: "Laboratorio", precio: 15000 },
+            { id: 53, codigo: "EST-126", nombre: "Radiografía de Columna Cervical (Pediátrico)", categoria: "Diagnóstico por Imágenes", precio: 25100 },
+            { id: 54, codigo: "EST-127", nombre: "Tomografía Computada de Tórax", categoria: "Diagnóstico por Imágenes", precio: 91200 },
+            { id: 55, codigo: "EST-130", nombre: "Prolactina", categoria: "Laboratorio", precio: 17200 },
+            { id: 56, codigo: "EST-131", nombre: "Hemograma Completo", categoria: "Laboratorio", precio: 12500 },
+            { id: 57, codigo: "EST-133", nombre: "Eco Doppler Cardiaco (Ecocardiograma) (Complejo)", categoria: "Diagnóstico por Imágenes", precio: 69400 },
+            { id: 58, codigo: "EST-135", nombre: "Urea y Creatinina (Complejo)", categoria: "Laboratorio", precio: 8600 },
+            { id: 59, codigo: "EST-137", nombre: "Eco Doppler de Vasos de Cuello", categoria: "Diagnóstico por Imágenes", precio: 54500 },
+            { id: 60, codigo: "EST-138", nombre: "Vitamina D (25-OH)", categoria: "Laboratorio", precio: 28300 },
+            { id: 61, codigo: "EST-141", nombre: "Ferritina y Hierro Sérico", categoria: "Laboratorio", precio: 21700 },
+            { id: 62, codigo: "EST-143", nombre: "Ecografía Ginecológica Transvaginal", categoria: "Diagnóstico por Imágenes", precio: 34200 },
+            { id: 63, codigo: "EST-145", nombre: "Tomografía Computada de Tórax (de Rutina)", categoria: "Diagnóstico por Imágenes", precio: 97800 },
+            { id: 64, codigo: "EST-152", nombre: "Ergometría (Prueba de Esfuerzo) (de Rutina)", categoria: "Cardiología", precio: 47000 },
+            { id: 65, codigo: "EST-153", nombre: "Eco Stress con Farmacología (Avanzado)", categoria: "Cardiología", precio: 108800 },
+            { id: 66, codigo: "EST-155", nombre: "Perfil Tiroideo (TSH, T3, T4)", categoria: "Laboratorio", precio: 20000 },
+            { id: 67, codigo: "EST-164", nombre: "Estudio Electrofisiológico (Control)", categoria: "Cardiología", precio: 233100 },
+            { id: 68, codigo: "EST-165", nombre: "Tilt Test (Mesa Basculante)", categoria: "Cardiología", precio: 72000 },
+            { id: 69, codigo: "EST-168", nombre: "Estudio Electrofisiológico (Digital)", categoria: "Cardiología", precio: 207900 },
+            { id: 70, codigo: "EST-171", nombre: "Histerosalpingografía", categoria: "Diagnóstico por Imágenes", precio: 73400 },
+            { id: 71, codigo: "EST-172", nombre: "Estudio Electrofisiológico (Complejo)", categoria: "Cardiología", precio: 189000 },
+            { id: 72, codigo: "EST-173", nombre: "Presurometría (MAPA de 24 hs) (de Control)", categoria: "Cardiología", precio: 55600 },
+            { id: 73, codigo: "EST-175", nombre: "Cardioversión Eléctrica Programada (Avanzado)", categoria: "Cardiología", precio: 156000 },
+            { id: 74, codigo: "EST-178", nombre: "Eco Stress con Farmacología (Digital)", categoria: "Cardiología", precio: 107800 },
+            { id: 75, codigo: "EST-180", nombre: "Radiografía de Rodilla (de Control)", categoria: "Diagnóstico por Imágenes", precio: 24100 },
+            { id: 76, codigo: "EST-181", nombre: "Mamografía Bilateral (Control)", categoria: "Diagnóstico por Imágenes", precio: 37300 },
+            { id: 77, codigo: "EST-182", nombre: "Radiografía Panorámica Dental (Complejo)", categoria: "Diagnóstico por Imágenes", precio: 20500 },
+            { id: 78, codigo: "EST-183", nombre: "HIV (Elisa)", categoria: "Laboratorio", precio: 13400 },
+            { id: 79, codigo: "EST-186", nombre: "Mamografía Bilateral (Digital)", categoria: "Diagnóstico por Imágenes", precio: 45900 },
+            { id: 80, codigo: "EST-187", nombre: "Hepatograma (de Rutina)", categoria: "Laboratorio", precio: 14400 },
+            { id: 81, codigo: "EST-188", nombre: "Densitometría Ósea (de Rutina)", categoria: "Diagnóstico por Imágenes", precio: 32500 },
+            { id: 82, codigo: "EST-190", nombre: "Tomografía Computada de Senos Paranasales (Avanzado)", categoria: "Diagnóstico por Imágenes", precio: 79900 },
+            { id: 83, codigo: "EST-199", nombre: "Cardioversión Eléctrica Programada (Control)", categoria: "Cardiología", precio: 168000 },
+            { id: 84, codigo: "EST-200", nombre: "Holter de 24 horas (Pediátrico)", categoria: "Cardiología", precio: 55000 }
+        ];
+
+        let cart = [];
+        let activeCoupon = null;
+        let isDniConfirmed = false;
+        let userDNI = "";
+
+        function formatCurrency(amount) {
+            return '$' + Math.round(amount).toLocaleString('es-AR');
+        }
+
+        function confirmDNI() {
+            const dniVal = document.getElementById('dniInput').value.trim();
+            const errorElement = document.getElementById('dniError');
+
+            if (!dniVal || dniVal.length < 6 || isNaN(dniVal)) {
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            errorElement.classList.add('hidden');
+            isDniConfirmed = true;
+            userDNI = dniVal;
+
+            document.getElementById('dniInputContainer').classList.add('hidden');
+            document.getElementById('dniConfirmedBadge').classList.remove('hidden');
+            document.getElementById('confirmedDniValue').textContent = userDNI;
+
+            updateCart();
+        }
+
+        function resetDNI() {
+            isDniConfirmed = false;
+            userDNI = "";
+            document.getElementById('dniInput').value = "";
+            document.getElementById('dniInputContainer').classList.remove('hidden');
+            document.getElementById('dniConfirmedBadge').classList.add('hidden');
+            document.getElementById('dniError').classList.add('hidden');
+
+            updateCart();
+        }
+
+        function renderStudies(studies) {
+            const listContainer = document.getElementById('studiesList');
+            if (studies.length === 0) {
+                listContainer.innerHTML = `<p class="text-slate-500 text-sm text-center py-6">No se encontraron estudios coincidentes.</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = studies.map(study => {
+                const isAdded = cart.some(item => item.id === study.id);
+                return `
+                    <div class="p-4 bg-white border border-slate-200 rounded-xl flex justify-between items-center hover:border-purple-200 hover:shadow-sm transition gap-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-400">${study.codigo}</span>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${study.categoria === 'Laboratorio' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}">${study.categoria}</span>
+                            </div>
+                            <h3 class="font-semibold text-slate-800 text-base mt-1">${study.nombre}</h3>
+                            <span class="text-slate-600 text-sm font-bold mt-0.5 block">${formatCurrency(study.precio)}</span>
+                        </div>
+                        <button onclick="toggleStudy(${study.id})" 
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition ${isAdded ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-purple-700 text-white hover:bg-purple-800'}">
+                            ${isAdded ? '✓ Agregado' : '+ Agregar'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterStudies() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+
+            const filtered = studiesDatabase.filter(study => {
+                const matchesSearch = study.nombre.toLowerCase().includes(searchText) || study.codigo.toLowerCase().includes(searchText);
+                const matchesCategory = category === 'TODAS' || study.categoria === category;
+                return matchesSearch && matchesCategory;
+            });
+
+            renderStudies(filtered);
+        }
+
+        function toggleStudy(id) {
+            const study = studiesDatabase.find(s => s.id === id);
+            const index = cart.findIndex(item => item.id === id);
+
+            if (index >= 0) {
+                cart.splice(index, 1);
+            } else {
+                cart.push(study);
+            }
+
+            updateCart();
+            filterStudies();
+        }
+
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartCount = document.getElementById('cartCount');
+            const subtotalElement = document.getElementById('subtotalAmount');
+            const discountRow = document.getElementById('discountRow');
+            const discountElement = document.getElementById('discountAmount');
+            const apbRow = document.getElementById('apbRow');
+            const ivaElement = document.getElementById('ivaAmount');
+            const totalElement = document.getElementById('totalAmount');
+            const dniPlaceholder = document.getElementById('dniPlaceholder');
+
+            cartCount.textContent = `${cart.length} seleccionados`;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `<p class="text-slate-400 text-sm italic text-center py-4">No agregaste ningún estudio aún.</p>`;
+            } else {
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="flex justify-between items-center text-xs p-2 bg-white border border-slate-200 rounded-lg">
+                        <div class="pr-2">
+                            <span class="font-medium text-slate-800 block">${item.nombre}</span>
+                            <span class="text-slate-500 font-semibold">${formatCurrency(item.precio)}</span>
+                        </div>
+                        <button onclick="toggleStudy(${item.id})" class="text-rose-500 hover:text-rose-700 font-bold p-1">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            const subtotal = cart.reduce((acc, item) => acc + item.precio, 0);
+
+            const tieneLaboratorio = cart.some(item => item.categoria === "Laboratorio");
+            const montoAPB = tieneLaboratorio ? APB_COSTO : 0;
+
+            let discount = 0;
+            if (activeCoupon === 'MIMAIPU') {
+                discount = subtotal * 0.20;
+            } else if (activeCoupon === 'ADULTOSMAYORES') {
+                discount = subtotal * 0.30;
+            } else if (activeCoupon === 'HOSPITAL') {
+                discount = subtotal * 0.25;
+            }
+
+            if (tieneLaboratorio) {
+                apbRow.classList.remove('hidden');
+            } else {
+                apbRow.classList.add('hidden');
+            }
+
+            if (discount > 0) {
+                discountRow.classList.remove('hidden');
+                discountElement.textContent = `-${formatCurrency(discount)}`;
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
+            const baseImponible = (subtotal - discount) + montoAPB;
+            const montoIVA = baseImponible * 0.21;
+            const total = baseImponible + montoIVA;
+
+            subtotalElement.textContent = formatCurrency(subtotal);
+            ivaElement.textContent = formatCurrency(montoIVA);
+            totalElement.textContent = formatCurrency(total);
+
+            if (isDniConfirmed) {
+                totalElement.classList.remove('hidden');
+                dniPlaceholder.classList.add('hidden');
+            } else {
+                totalElement.classList.add('hidden');
+                dniPlaceholder.classList.remove('hidden');
+            }
+        }
+
+        function clearCart() {
+            cart = [];
+            activeCoupon = null;
+            document.getElementById('appliedCouponTag').classList.add('hidden');
+            resetDNI();
+            updateCart();
+            filterStudies();
+        }
+
+        function shareWhatsApp() {
+            if (cart.length === 0) {
+                alert("Por favor, seleccioná al menos un estudio antes de solicitar un turno.");
+                return;
+            }
+
+            const listaEstudios = cart.map(item => `- ${item.nombre}: ${formatCurrency(item.precio)}`).join('%0A');
+            const subtotal = cart.reduce((acc, item) => acc + item.precio, 0);
+            
+            let discount = 0;
+            if (activeCoupon === 'MIMAIPU') discount = subtotal * 0.20;
+            else if (activeCoupon === 'ADULTOSMAYORES') discount = subtotal * 0.30;
+            else if (activeCoupon === 'HOSPITAL') discount = subtotal * 0.25;
+
+            const tieneLaboratorio = cart.some(item => item.categoria === "Laboratorio");
+            const montoAPB = tieneLaboratorio ? APB_COSTO : 0;
+            const baseImponible = (subtotal - discount) + montoAPB;
+            const montoIVA = baseImponible * 0.21;
+            const total = baseImponible + montoIVA;
+
+            let mensaje = `Hola, quiero solicitar un turno para los siguientes estudios:%0A%0A${listaEstudios}%0A%0A`;
+            if (isDniConfirmed) {
+                mensaje += `*DNI:* ${userDNI}%0A`;
+            }
+            mensaje += `*Total estimado:* ${formatCurrency(total)}`;
+
+            window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
+        }
+
+        function openCouponModal() {
+            document.getElementById('couponModal').classList.remove('hidden');
+            document.getElementById('couponModal').classList.add('flex');
+        }
+
+        function closeCouponModal() {
+            document.getElementById('couponModal').classList.add('hidden');
+            document.getElementById('couponModal').classList.remove('flex');
+        }
+
+        function selectCoupon(code) {
+            activeCoupon = code;
+            document.getElementById('couponName').textContent = `Código: ${code}`;
+            document.getElementById('appliedCouponTag').classList.remove('hidden');
+            closeCouponModal();
+            updateCart();
+        }
+
+        function removeCoupon() {
+            activeCoupon = null;
+            document.getElementById('appliedCouponTag').classList.add('hidden');
+            updateCart();
+        }
+
+        filterStudies();
+    </script>
 </body>
 </html>
