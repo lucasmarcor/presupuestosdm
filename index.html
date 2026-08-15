@@ -410,7 +410,7 @@
                         Solicitar turno por WhatsApp
                     </button>
 
-                    <!-- Aviso de atención sin turno previo en Laboratorio (Se eliminó la parte de preparaciones aquí) -->
+                    <!-- Aviso de atención sin turno previo en Laboratorio -->
                     <div id="postPaymentPrepBox" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left hidden">
                         <p class="text-xs text-amber-900 leading-relaxed">
                             📍 El servicio de laboratorio no requiere turno previo, puede acercarse a cualquiera de las sedes. 
@@ -435,12 +435,12 @@
         const TELEFONO_CONTACTO = "541148970000"; 
 
         const studiesDatabase = [
-            // --- Nuevos Chequeos Médicos (No pagan APB, no aplican cupones, permitidos para pago web) ---
+            // --- Nuevos Chequeos Médicos ---
             { id: 1001, codigo: "CHQ-001", nombre: "Chequeo Médico 18 a 50 años", categoria: "Chequeo Médico", precio: 313263, exento: true },
             { id: 1002, codigo: "CHQ-002", nombre: "Chequeo Médico 51 a 64 años", categoria: "Chequeo Médico", precio: 374386, exento: true },
             { id: 1003, codigo: "CHQ-003", nombre: "Chequeo Médico +64 años", categoria: "Chequeo Médico", precio: 496636, exento: true },
 
-            // --- Nuevos Estudios de Laboratorio Especiales (No pagan APB, no aplican cupones, permitidos para pago web) ---
+            // --- Nuevos Estudios de Laboratorio Especiales ---
             { id: 1004, codigo: "LAB-EX-01", nombre: "Sexado fetal", categoria: "Laboratorio", precio: 99500, exento: true },
             { id: 1005, codigo: "LAB-EX-02", nombre: "Test Covid PCR", categoria: "Laboratorio", precio: 55000, exento: true },
             { id: 1006, codigo: "LAB-EX-03", nombre: "Antígeno Covid", categoria: "Laboratorio", precio: 19500, exento: true },
@@ -592,7 +592,6 @@
                                 <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${study.categoria === 'Laboratorio' ? 'bg-amber-100 text-amber-800' : (study.categoria === 'Chequeo Médico' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-600')}">${study.categoria}</span>
                             </div>
                             <h3 class="font-semibold text-slate-800 text-base mt-1">${study.nombre}</h3>
-                            <span class="text-slate-600 text-sm font-bold mt-0.5 block">${formatCurrency(study.precio)}</span>
                         </div>
                         <button onclick="toggleStudy(${study.id})" 
                                 class="px-4 py-2 rounded-xl text-xs font-bold transition ${isAdded ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-purple-700 text-white hover:bg-purple-800'}">
@@ -700,7 +699,7 @@
                     <div class="flex justify-between items-center text-xs p-2 bg-white border border-slate-200 rounded-lg">
                         <div class="pr-2">
                             <span class="font-medium text-slate-800 block">${item.nombre}</span>
-                            <span class="text-slate-500 font-semibold">${formatCurrency(item.precio)}</span>
+                            ${isDniConfirmed ? `<span class="text-slate-500 font-semibold">${formatCurrency(item.precio)}</span>` : ''}
                         </div>
                         <button onclick="toggleStudy(${item.id})" class="text-rose-500 hover:text-rose-700 font-bold p-1">✕</button>
                     </div>
@@ -748,18 +747,18 @@
                 discountRow.classList.add('hidden');
             }
 
-            // Los precios de lista ya incluyen el IVA (21%).
             const montoIVA = subtotal - (subtotal / 1.21);
             calculatedTotal = (subtotal - discount) + montoAPB;
 
-            subtotalElement.textContent = formatCurrency(subtotal);
-            ivaElement.textContent = formatCurrency(montoIVA);
-            totalElement.textContent = formatCurrency(calculatedTotal);
-
             if (isDniConfirmed) {
+                subtotalElement.textContent = formatCurrency(subtotal);
+                ivaElement.textContent = formatCurrency(montoIVA);
+                totalElement.textContent = formatCurrency(calculatedTotal);
                 totalElement.classList.remove('hidden');
                 dniPlaceholder.classList.add('hidden');
             } else {
+                subtotalElement.textContent = "-";
+                ivaElement.textContent = "-";
                 totalElement.classList.add('hidden');
                 dniPlaceholder.classList.remove('hidden');
             }
@@ -789,13 +788,13 @@
                 return;
             }
 
-            const listaEstudios = cart.map(item => `- ${item.nombre}: ${formatCurrency(item.precio)}`).join('%0A');
+            const listaEstudios = cart.map(item => `- ${item.nombre}` + (isDniConfirmed ? `: ${formatCurrency(item.precio)}` : '')).join('%0A');
             
             let mensaje = `Hola, quiero solicitar un turno para los siguientes estudios:%0A%0A${listaEstudios}%0A%0A`;
             if (isDniConfirmed) {
                 mensaje += `*DNI:* ${userDNI}%0A`;
+                mensaje += `*Total estimado:* ${formatCurrency(calculatedTotal)}`;
             }
-            mensaje += `*Total estimado:* ${formatCurrency(calculatedTotal)}`;
 
             window.open(`https://api.whatsapp.com/send?phone=${TELEFONO_CONTACTO}&text=${mensaje}`, '_blank');
         }
@@ -880,7 +879,6 @@
             setTimeout(() => {
                 document.getElementById('paymentStepLoading').classList.add('hidden');
                 
-                // Evaluación de categorías seleccionadas para agendamiento por WhatsApp
                 const requiereTurnoWsp = cart.some(item => 
                     item.categoria === "Diagnóstico por Imágenes" || 
                     item.categoria === "Cardiología" || 
