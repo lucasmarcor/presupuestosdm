@@ -33,7 +33,7 @@
                 </h2>
                 
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="searchInput" oninput="filterStudies()" placeholder="Escribí el nombre del estudio (ej. Hemograma, Tomografía...)" 
+                    <input type="text" id="searchInput" oninput="filterStudies()" placeholder="Escribí el nombre del estudio (ej. Hemograma, Chequeo...)" 
                            class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent text-sm">
                     
                     <select id="categoryFilter" onchange="filterStudies()" class="px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm bg-white">
@@ -41,6 +41,7 @@
                         <option value="Laboratorio">Laboratorio</option>
                         <option value="Diagnóstico por Imágenes">Diagnóstico por Imágenes</option>
                         <option value="Cardiología">Cardiología</option>
+                        <option value="Chequeo Médico">Chequeo Médico</option>
                     </select>
                 </div>
             </div>
@@ -57,7 +58,7 @@
                 <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                     <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                         </svg>
                         Presupuesto
                     </h2>
@@ -66,6 +67,18 @@
 
                 <div id="cartItems" class="space-y-3 max-h-60 overflow-y-auto pr-1">
                     <p class="text-slate-400 text-sm italic text-center py-4">No agregaste ningún estudio aún.</p>
+                </div>
+
+                <!-- Mensaje de preparaciones en la pantalla principal debajo del listado del presupuesto -->
+                <div id="mainPrepBox" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left hidden space-y-2">
+                    <span class="font-bold text-amber-900 text-xs block">📋 Indicaciones previas de Laboratorio:</span>
+                    <p class="text-xs text-amber-800">Tus estudios de laboratorio pueden requerir preparación previa antes de asistir al centro.</p>
+                    <a href="https://lucasmarcor.github.io/preparacionesdm/" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        Ver preparaciones requeridas
+                    </a>
                 </div>
 
                 <div class="border-t border-slate-200 pt-4">
@@ -109,6 +122,11 @@
                         <span id="subtotalAmount" class="font-medium">$0</span>
                     </div>
 
+                    <div id="ivaRow" class="flex justify-between text-xs text-slate-500 italic">
+                        <span>IVA Incluido (21%):</span>
+                        <span id="ivaAmount" class="font-medium">$0</span>
+                    </div>
+
                     <div id="discountRow" class="flex justify-between text-emerald-600 hidden">
                         <span>Descuento Aplicado:</span>
                         <span id="discountAmount" class="font-bold">-$0</span>
@@ -122,11 +140,6 @@
                             Arancel APB (Laboratorio)
                         </span>
                         <span class="font-bold">+ $25.000</span>
-                    </div>
-
-                    <div id="ivaRow" class="flex justify-between text-slate-600">
-                        <span>IVA (21%):</span>
-                        <span id="ivaAmount" class="font-medium">$0</span>
                     </div>
 
                     <div class="border-t border-slate-200 pt-3 flex justify-between items-center text-base font-bold text-slate-900">
@@ -151,7 +164,7 @@
                 </div>
 
                 <div class="space-y-2 pt-1">
-                    <!-- Botón para pagar el presupuesto online -->
+                    <!-- Botón para pagar el presupuesto online (Oculto condicionalmente) -->
                     <button id="payButton" onclick="openPaymentModal()" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
@@ -237,7 +250,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <p class="text-xs leading-relaxed text-amber-800">
-                    <span class="font-semibold">Aviso importante:</span> Los descuentos se aplican sobre el precio de lista. No aplican sobre contrastes, descartables, medicamentos, radioactivos ni APB.
+                    <span class="font-semibold">Aviso importante:</span> Los descuentos se aplican sobre el precio de lista. No aplican sobre contrastes, descartables, medicamentos, radioactivos, APB ni estudios especiales/chequeos.
                 </p>
             </div>
 
@@ -247,6 +260,38 @@
                 </button>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Modal Pregunta de Contraste para Resonancias -->
+    <div id="contrastModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Requisito de Contraste
+                </h3>
+                <button onclick="closeContrastModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <p class="text-sm text-slate-700 leading-relaxed">
+                ¿El estudio de resonancia seleccionado requiere la aplicación de <span class="font-bold text-purple-900">material de contraste</span> según indicación médica?
+            </p>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="confirmContrast(false)" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition">
+                    No requiere
+                </button>
+                <button onclick="confirmContrast(true)" class="py-2.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
+                    Sí, requiere (+$63.458)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -357,7 +402,7 @@
 
                 <!-- Redirecciones dinámicas según categorías elegidas -->
                 <div class="w-full space-y-2 pt-1">
-                    <!-- Botón WhatsApp (Imágenes / Cardiología) -->
+                    <!-- Botón WhatsApp (Imágenes / Cardiología / Chequeo Médico) -->
                     <button id="postPaymentWspBtn" onclick="shareWhatsApp()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm hidden">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
                             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
@@ -365,27 +410,14 @@
                         Solicitar turno por WhatsApp
                     </button>
 
-                    <!-- Caja con enlace a preparaciones y aviso de sedes (Laboratorio) -->
-                    <div id="postPaymentPrepBox" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left hidden space-y-3">
-                        <div>
-                            <span class="font-bold text-amber-900 text-xs block mb-1">📋 Indicaciones previas de Laboratorio:</span>
-                            <p class="text-xs text-amber-800 mb-2">Tus estudios requieren preparación antes de asistir al centro.</p>
-                            <a href="https://lucasmarcor.github.io/preparacionesdm/" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                                Ver preparaciones requeridas
+                    <!-- Aviso de atención sin turno previo en Laboratorio (Se eliminó la parte de preparaciones aquí) -->
+                    <div id="postPaymentPrepBox" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left hidden">
+                        <p class="text-xs text-amber-900 leading-relaxed">
+                            📍 El servicio de laboratorio no requiere turno previo, puede acercarse a cualquiera de las sedes. 
+                            <a href="https://www.diagnosticomaipu.com/sedes-laboratorio/" target="_blank" class="font-bold underline text-amber-950 hover:text-purple-800">
+                                Ver sedes y horarios
                             </a>
-                        </div>
-                        
-                        <div class="border-t border-amber-200/60 pt-2">
-                            <p class="text-xs text-amber-900 leading-relaxed">
-                                📍 El servicio de laboratorio no requiere turno previo, puede acercarse a cualquiera de las sedes. 
-                                <a href="https://www.diagnosticomaipu.com/sedes-laboratorio/" target="_blank" class="font-bold underline text-amber-950 hover:text-purple-800">
-                                    Ver sedes y horarios
-                                </a>
-                            </p>
-                        </div>
+                        </p>
                     </div>
                 </div>
 
@@ -399,9 +431,22 @@
 
     <script>
         const APB_COSTO = 25000;
+        const CONTRASTE_COSTO = 63458;
         const TELEFONO_CONTACTO = "541148970000"; 
 
         const studiesDatabase = [
+            // --- Nuevos Chequeos Médicos (No pagan APB, no aplican cupones, permitidos para pago web) ---
+            { id: 1001, codigo: "CHQ-001", nombre: "Chequeo Médico 18 a 50 años", categoria: "Chequeo Médico", precio: 313263, exento: true },
+            { id: 1002, codigo: "CHQ-002", nombre: "Chequeo Médico 51 a 64 años", categoria: "Chequeo Médico", precio: 374386, exento: true },
+            { id: 1003, codigo: "CHQ-003", nombre: "Chequeo Médico +64 años", categoria: "Chequeo Médico", precio: 496636, exento: true },
+
+            // --- Nuevos Estudios de Laboratorio Especiales (No pagan APB, no aplican cupones, permitidos para pago web) ---
+            { id: 1004, codigo: "LAB-EX-01", nombre: "Sexado fetal", categoria: "Laboratorio", precio: 99500, exento: true },
+            { id: 1005, codigo: "LAB-EX-02", nombre: "Test Covid PCR", categoria: "Laboratorio", precio: 55000, exento: true },
+            { id: 1006, codigo: "LAB-EX-03", nombre: "Antígeno Covid", categoria: "Laboratorio", precio: 19500, exento: true },
+            { id: 1007, codigo: "LAB-EX-04", nombre: "Test Genético", categoria: "Laboratorio", precio: 150000, exento: true },
+
+            // --- Base General de Estudios ---
             { id: 1, codigo: "EST-003", nombre: "Mamografía Bilateral", categoria: "Diagnóstico por Imágenes", precio: 46300 },
             { id: 2, codigo: "EST-004", nombre: "Proteinograma por Electroforesis", categoria: "Laboratorio", precio: 20200 },
             { id: 3, codigo: "EST-006", nombre: "Glucemia en Ayunas", categoria: "Laboratorio", precio: 7700 },
@@ -493,6 +538,7 @@
         let isDniConfirmed = false;
         let userDNI = "";
         let calculatedTotal = 0;
+        let pendingResonanceStudy = null;
 
         function formatCurrency(amount) {
             return '$' + Math.round(amount).toLocaleString('es-AR');
@@ -543,7 +589,7 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-bold text-slate-400">${study.codigo}</span>
-                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${study.categoria === 'Laboratorio' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}">${study.categoria}</span>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${study.categoria === 'Laboratorio' ? 'bg-amber-100 text-amber-800' : (study.categoria === 'Chequeo Médico' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-600')}">${study.categoria}</span>
                             </div>
                             <h3 class="font-semibold text-slate-800 text-base mt-1">${study.nombre}</h3>
                             <span class="text-slate-600 text-sm font-bold mt-0.5 block">${formatCurrency(study.precio)}</span>
@@ -576,10 +622,58 @@
 
             if (index >= 0) {
                 cart.splice(index, 1);
+                
+                const quedanResonancias = cart.some(item => item.nombre.toLowerCase().includes("resonancia") && item.id !== 9999);
+                if (!quedanResonancias) {
+                    const contrasteIndex = cart.findIndex(item => item.id === 9999);
+                    if (contrasteIndex >= 0) {
+                        cart.splice(contrasteIndex, 1);
+                    }
+                }
+                updateCart();
+                filterStudies();
             } else {
-                cart.push(study);
+                if (study.nombre.toLowerCase().includes("resonancia")) {
+                    pendingResonanceStudy = study;
+                    openContrastModal();
+                } else {
+                    cart.push(study);
+                    updateCart();
+                    filterStudies();
+                }
             }
+        }
 
+        function openContrastModal() {
+            document.getElementById('contrastModal').classList.remove('hidden');
+            document.getElementById('contrastModal').classList.add('flex');
+        }
+
+        function closeContrastModal() {
+            document.getElementById('contrastModal').classList.add('hidden');
+            document.getElementById('contrastModal').classList.remove('flex');
+            pendingResonanceStudy = null;
+        }
+
+        function confirmContrast(requires) {
+            if (pendingResonanceStudy) {
+                cart.push(pendingResonanceStudy);
+                
+                if (requires) {
+                    const yaTieneContraste = cart.some(item => item.id === 9999);
+                    if (!yaTieneContraste) {
+                        cart.push({
+                            id: 9999,
+                            codigo: "SUP-001",
+                            nombre: "Contraste para Resonancia",
+                            categoria: "Insumos",
+                            precio: CONTRASTE_COSTO,
+                            exento: true
+                        });
+                    }
+                }
+            }
+            closeContrastModal();
             updateCart();
             filterStudies();
         }
@@ -594,6 +688,8 @@
             const ivaElement = document.getElementById('ivaAmount');
             const totalElement = document.getElementById('totalAmount');
             const dniPlaceholder = document.getElementById('dniPlaceholder');
+            const payButton = document.getElementById('payButton');
+            const mainPrepBox = document.getElementById('mainPrepBox');
 
             cartCount.textContent = `${cart.length} seleccionados`;
 
@@ -611,21 +707,35 @@
                 `).join('');
             }
 
+            // Mostrar u ocultar la caja de preparaciones en la pantalla principal
+            const tieneEstudioLaboratorio = cart.some(item => item.categoria === "Laboratorio");
+            if (tieneEstudioLaboratorio) {
+                mainPrepBox.classList.remove('hidden');
+            } else {
+                mainPrepBox.classList.add('hidden');
+            }
+
             const subtotal = cart.reduce((acc, item) => acc + item.precio, 0);
 
-            const tieneLaboratorio = cart.some(item => item.categoria === "Laboratorio");
-            const montoAPB = tieneLaboratorio ? APB_COSTO : 0;
+            // APB sólo aplica si hay al menos un estudio de laboratorio NO exento
+            const tieneLaboratorioAplicaAPB = cart.some(item => item.categoria === "Laboratorio" && !item.exento);
+            const montoAPB = tieneLaboratorioAplicaAPB ? APB_COSTO : 0;
+
+            // Descuentos sólo aplican a estudios no exentos
+            const subtotalAplicaDescuento = cart
+                .filter(item => !item.exento)
+                .reduce((acc, item) => acc + item.precio, 0);
 
             let discount = 0;
             if (activeCoupon === 'MIMAIPU') {
-                discount = subtotal * 0.20;
+                discount = subtotalAplicaDescuento * 0.20;
             } else if (activeCoupon === 'ADULTOSMAYORES') {
-                discount = subtotal * 0.30;
+                discount = subtotalAplicaDescuento * 0.30;
             } else if (activeCoupon === 'HOSPITAL') {
-                discount = subtotal * 0.25;
+                discount = subtotalAplicaDescuento * 0.25;
             }
 
-            if (tieneLaboratorio) {
+            if (tieneLaboratorioAplicaAPB) {
                 apbRow.classList.remove('hidden');
             } else {
                 apbRow.classList.add('hidden');
@@ -638,9 +748,9 @@
                 discountRow.classList.add('hidden');
             }
 
-            const baseImponible = (subtotal - discount) + montoAPB;
-            const montoIVA = baseImponible * 0.21;
-            calculatedTotal = baseImponible + montoIVA;
+            // Los precios de lista ya incluyen el IVA (21%).
+            const montoIVA = subtotal - (subtotal / 1.21);
+            calculatedTotal = (subtotal - discount) + montoAPB;
 
             subtotalElement.textContent = formatCurrency(subtotal);
             ivaElement.textContent = formatCurrency(montoIVA);
@@ -652,6 +762,15 @@
             } else {
                 totalElement.classList.add('hidden');
                 dniPlaceholder.classList.remove('hidden');
+            }
+
+            // Control de Visibilidad del Botón de Pago
+            const hayEstudiosNoPermitidosParaPago = cart.some(item => !item.exento);
+
+            if (cart.length > 0 && !hayEstudiosNoPermitidosParaPago) {
+                payButton.classList.remove('hidden');
+            } else {
+                payButton.classList.add('hidden');
             }
         }
 
@@ -761,9 +880,11 @@
             setTimeout(() => {
                 document.getElementById('paymentStepLoading').classList.add('hidden');
                 
-                // Evaluación de categorías seleccionadas en el carrito
-                const tieneImagenesOCardio = cart.some(item => 
-                    item.categoria === "Diagnóstico por Imágenes" || item.categoria === "Cardiología"
+                // Evaluación de categorías seleccionadas para agendamiento por WhatsApp
+                const requiereTurnoWsp = cart.some(item => 
+                    item.categoria === "Diagnóstico por Imágenes" || 
+                    item.categoria === "Cardiología" || 
+                    item.categoria === "Chequeo Médico"
                 );
                 const tieneLaboratorio = cart.some(item => item.categoria === "Laboratorio");
 
@@ -771,13 +892,12 @@
                 const prepBox = document.getElementById('postPaymentPrepBox');
                 const receiptTurnoRow = document.getElementById('receiptTurnoRow');
 
-                if (tieneImagenesOCardio) {
+                if (requiereTurnoWsp) {
                     wspBtn.classList.remove('hidden');
-                    receiptTurnoRow.classList.remove('hidden');
+                    if (receiptTurnoRow) receiptTurnoRow.classList.remove('hidden');
                 } else {
                     wspBtn.classList.add('hidden');
-                    // Si NO hay imágenes ni cardiología (ej. solo laboratorio), oculta la fila del estado de turno
-                    receiptTurnoRow.classList.add('hidden');
+                    if (receiptTurnoRow) receiptTurnoRow.classList.add('hidden');
                 }
 
                 if (tieneLaboratorio) {
